@@ -1,7 +1,7 @@
 import requests, ndjson
 import pandas as pd
+import numpy as np
 from local_settings import user
-
 
 #request structure
 api_url = "https://lichess.org/api/games/user/"
@@ -42,5 +42,13 @@ for g in gdata:
 
 #create pandas dataframe
 df_games = pd.DataFrame(games)
-print(df_games)
-# print(gdata[0]['pgn'])
+
+#change date format
+df_games['date'] = pd.to_datetime(df_games['date'], unit="ms")
+df_games['day_of_week'] = df_games['date'].dt.day_name()
+
+#add user result
+df_games['user_color'] = np.where(df_games['white'] == user, "white", "black")
+df_games['user_rate_diff'] = np.where(df_games['white'] == user, df_games['white_rating_diff'], df_games['black_rating_diff'])
+
+print(df_games.head())
