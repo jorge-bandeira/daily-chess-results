@@ -68,6 +68,8 @@ body {
 	border: none;
 	font-size: 18px;
 	margin-top: 1rem;
+	text-decoration: none;
+	text-align: center;
 }
 
 #runButton:hover {
