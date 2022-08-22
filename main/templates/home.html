@@ -4,17 +4,25 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" type="text/css" href="static/styles.css">
+	<script type="text/javascript" src="static/scripts.js"></script>
 	<title>Daily Chess Performance</title>
 </head>
 <body>
 	<div class="main-box">
+		<div class="title-box">
+			<h1 class="title">Daily Chess</h1>
+		</div>
 		<div class="user-box">
-			<p>User Name</p>
+			<p>Lichess User Name</p>
 			<input type="text" name="userfield" placeholder="..." id="userField">
 		</div>
 		<div class="number-box">
 			<p>Number of games</p>
-			<input type="range" class="slider" min="1" max="200" id="gamesSlider">
+			<input type="range" class="slider" min="1" max="200" id="gamesSlider" onchange="displayNumber(this.value);">
+			<span id="gamesNum">100</span>
+		</div>
+		<div class="run-box">
+			<button id="runButton">RUN</button>
 		</div>
 	</div>
 </body>

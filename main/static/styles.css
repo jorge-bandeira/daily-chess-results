@@ -1,6 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
 * {
 	margin: 0;
 	color: white;
+	font-family: Poppins;
 }
 
 body {
@@ -9,15 +12,31 @@ body {
 
 .main-box {
 	width: 100%;
-	height: 500px;
-	display: block;
+	margin-top: 100px;
+	margin-right: 50px;
+/*	display: block;
 	justify-content: center;
-	align-items: center;
-	background-color: orange;
+	align-items: center;*/
+	/*background-color: orange;*/
+}
+
+.title-box {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	margin-bottom: 1rem;
+}
+
+.title {
+	margin-bottom: 1rem;
 }
 
 .user-box {
+	width: 100%;
 	display: inline-flex;
+	justify-content: center;
+	margin-bottom: 1rem;
+	/*background-color: blue;*/
 }
 
 #userField {
@@ -27,4 +46,30 @@ body {
 
 .number-box {
 	display: flex;
+	justify-content: center;
+	/*background-color: green;*/
+	margin-bottom: 1rem;
+}
+
+#gamesSlider {
+	margin-left: 1rem;
+	margin-right: 1rem;
+}
+
+.run-box {
+	display: flex;
+	align-content: center;
+	justify-content: center;
+}
+
+#runButton {
+	width: 75px;
+	background-color: #2959a6;
+	border: none;
+	font-size: 18px;
+	margin-top: 1rem;
+}
+
+#runButton:hover {
+	background-color: #1281a3;
 }
