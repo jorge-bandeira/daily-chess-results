@@ -12,18 +12,23 @@
 		<div class="title-box">
 			<h1 class="title">Daily Chess</h1>
 		</div>
-		<div class="user-box">
-			<p>Lichess User Name</p>
-			<input type="text" name="userfield" placeholder="..." id="userField">
-		</div>
-		<div class="number-box">
-			<p>Number of games</p>
-			<input type="range" class="slider" min="1" max="200" id="gamesSlider" onchange="displayNumber(this.value);">
-			<span id="gamesNum">100</span>
-		</div>
-		<div class="run-box">
-			<a id="runButton" href="/results">RUN</a>
-		</div>
+		<form method="POST">
+			{{ form.hidden_tag() }}
+			<div class="user-box">
+				<p>Lichess User Name</p>
+				{{ form.user(id="userField") }}
+				<!-- <input type="text" name="userfield" placeholder="..." id="userField"> -->
+			</div>
+			<div class="number-box">
+				<p>Number of games</p>
+				<input type="range" class="slider" min="1" max="200" id="gamesSlider" onchange="displayNumber(this.value);">
+				<span id="gamesNum">100</span>
+			</div>
+			<div class="run-box">
+				<!-- <a id="runButton" href="/results">RUN</a> -->
+				{{ form.submit(id="runButton") }}
+			</div>
+		</form>
 	</div>
 </body>
 </html>
