@@ -1,4 +1,4 @@
-from main import app
+from main import app, games
 from main.forms import MainForm
 from flask import render_template
 
@@ -19,8 +19,9 @@ def results():
 	user = None
 	if form.validate_on_submit():
 		user = form.user.data
-		games = form.games.data
+		max_games = form.max_games.data
 		form.user.data = ''
-		return render_template('results.html', user = user, games = games)
+		games.getData(user, max_games)
+		return render_template('results.html', user = user, max_games = max_games)
 	else:
 		return render_template('error.html')
