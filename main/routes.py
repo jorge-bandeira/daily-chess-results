@@ -19,7 +19,8 @@ def results():
 	user = None
 	if form.validate_on_submit():
 		user = form.user.data
+		games = form.games.data
 		form.user.data = ''
-		return render_template('results.html', form = form, user = user)
+		return render_template('results.html', user = user, games = games)
 	else:
 		return render_template('error.html')
