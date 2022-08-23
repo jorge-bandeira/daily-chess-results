@@ -1,6 +1,7 @@
 import requests, ndjson
 import pandas as pd
 import numpy as np
+import plotly.graph_objects as go
 
 #request structure
 api_url = "https://lichess.org/api/games/user/"
@@ -21,7 +22,7 @@ def getData(user, max):
 	gdata = ndjson.loads(games_request)
 	games = getGames(gdata)
 	df = createDf(games, user)
-	print(df.head())
+	createHeatDf(df)
 
 #api request
 def createRequest(url, headers, params):
@@ -56,9 +57,33 @@ def createDf(games, user):
 	#change date format
 	df_games['date'] = pd.to_datetime(df_games['date'], unit="ms")
 	df_games['day_of_week'] = df_games['date'].dt.day_name()
+	df_games['hour'] = df_games['date'].dt.hour
 
 	#add user result
 	df_games['user_color'] = np.where(df_games['white'] == user, "white", "black")
 	df_games['user_rate_diff'] = np.where(df_games['white'] == user, df_games['white_rating_diff'], df_games['black_rating_diff'])
 
 	return df_games
+
+def createHeatDf(df):
+	heatMap_df = df[['day_of_week', 'hour', 'user_rate_diff']]
+	heatMap_df = heatMap_df.groupby(['day_of_week', 'hour'])['user_rate_diff'].sum().reset_index()
+	heatMap_df['day_of_week'] = pd.Categorical(
+		heatMap_df['day_of_week'],
+		categories = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday', 'Sunday'],
+		ordered = True
+		)
+	heatMap_df = heatMap_df.sort_values('day_of_week')
+	x = heatMap_df['hour']
+	y = heatMap_df['day_of_week']
+	z = heatMap_df['user_rate_diff']
+	heatMap_fig = go.Figure(data=go.Heatmap(x=x, y=y, z=z, colorscale='Viridis'))
+	heatMap_fig.update_layout(
+		title = 'Daily Chess Rating Change',
+	    xaxis_title="Hour of Day",
+	    xaxis_showgrid = False,
+	    yaxis_showgrid = False,
+	    xaxis_zeroline = False,
+	    yaxis_zeroline = False
+		)
+	heatMap_fig.write_html("plot.html")
