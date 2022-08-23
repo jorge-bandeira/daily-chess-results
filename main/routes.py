@@ -2,18 +2,24 @@ from main import app
 from main.forms import MainForm
 from flask import render_template
 
-@app.route('/')
-@app.route('/home', methods=['GET', 'POST'])
-def home():
-	user = None
+@app.context_processor
+def base():
 	form = MainForm()
+	return dict(form=form)
+
+@app.route('/')
+@app.route('/home')
+def home():
+	return render_template('home.html')
+
+@app.route('/results', methods = ['POST'])
+def results():
+	form = MainForm()
+	print(form.errors)
+	user = None
 	if form.validate_on_submit():
 		user = form.user.data
 		form.user.data = ''
-	print("home")
-	return render_template('home.html', user = user, form = form)
-
-@app.route('/results')
-def results():
-	print("results")
-	return render_template('results.html')
+		return render_template('results.html', form = form, user = user)
+	else:
+		return render_template('error.html')
