@@ -22,7 +22,8 @@ def getData(user, max):
 	gdata = ndjson.loads(games_request)
 	games = getGames(gdata)
 	df = createDf(games, user)
-	createHeatDf(df)
+	createRateDiffDf(df)
+	createGamesNumDf(df)
 
 #api request
 def createRequest(url, headers, params):
@@ -65,7 +66,7 @@ def createDf(games, user):
 
 	return df_games
 
-def createHeatDf(df):
+def createRateDiffDf(df):
 	heatMap_df = df[['day_of_week', 'hour', 'user_rate_diff']]
 	heatMap_df = heatMap_df.groupby(['day_of_week', 'hour'])['user_rate_diff'].sum().reset_index()
 	heatMap_df['day_of_week'] = pd.Categorical(
@@ -77,7 +78,7 @@ def createHeatDf(df):
 	x = heatMap_df['hour']
 	y = heatMap_df['day_of_week']
 	z = heatMap_df['user_rate_diff']
-	heatMap_fig = go.Figure(data=go.Heatmap(x=x, y=y, z=z, colorscale='Viridis'))
+	heatMap_fig = go.Figure(data=go.Heatmap(x=x, y=y, z=z, colorscale='Viridis', hoverongaps=False))
 	heatMap_fig.update_layout(
 		title = 'Daily Chess Rating Change',
 	    xaxis_title="Hour of Day",
@@ -87,3 +88,26 @@ def createHeatDf(df):
 	    yaxis_zeroline = False
 		)
 	heatMap_fig.write_html("plot.html")
+
+def createGamesNumDf(df):
+	heatMap_n_df = df[['day_of_week', 'hour', 'user_rate_diff']]
+	heatMap_n_df = heatMap_n_df.groupby(['day_of_week', 'hour'])['user_rate_diff'].count().reset_index()
+	heatMap_n_df['day_of_week'] = pd.Categorical(
+		heatMap_n_df['day_of_week'],
+		categories = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday', 'Sunday'],
+		ordered = True
+		)
+	heatMap_n_df = heatMap_n_df.sort_values('day_of_week')
+	x = heatMap_n_df['hour']
+	y = heatMap_n_df['day_of_week']
+	z = heatMap_n_df['user_rate_diff']
+	heatMap_n_fig = go.Figure(data=go.Heatmap(x=x, y=y, z=z, colorscale='Viridis', hoverongaps=False))
+	heatMap_n_fig.update_layout(
+		title = 'Daily Chess Games',
+	    xaxis_title="Hour of Day",
+	    xaxis_showgrid = False,
+	    yaxis_showgrid = False,
+	    xaxis_zeroline = False,
+	    yaxis_zeroline = False
+		)
+	heatMap_n_fig.write_html("plot_n.html")
