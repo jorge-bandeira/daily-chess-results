@@ -19,11 +19,15 @@ def getData(user, max):
 	}
 	url = api_url + user
 	games_request = createRequest(url, headers, params)
-	gdata = ndjson.loads(games_request)
-	games = getGames(gdata)
-	df = createDf(games, user)
-	createRateDiffDf(df)
-	createGamesNumDf(df)
+	if games_request == "":
+		print('no result')
+	else:
+		print('r: ' + games_request)
+	# gdata = ndjson.loads(games_request)
+	# games = getGames(gdata)
+	# df = createDf(games, user)
+	# createRateDiffDf(df)
+	# createGamesNumDf(df)
 
 #api request
 def createRequest(url, headers, params):

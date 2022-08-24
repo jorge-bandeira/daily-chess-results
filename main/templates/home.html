@@ -17,16 +17,31 @@
 			<div class="user-box">
 				<p>Lichess User Name</p>
 				{{ form.user(id="userField") }}
-				<!-- <input type="text" name="userfield" placeholder="..." id="userField"> -->
+			</div>
+			<div class="time-control-box">
+				<div class="time-sub-box">
+					<p class="control-tag">Classical</p>
+					{{ form.classical(class="control-checkbox") }}
+				</div>
+				<div class="time-sub-box">
+					<p class="control-tag">Rapid</p>
+					{{ form.rapid(class="control-checkbox") }}
+				</div>
+				<div class="time-sub-box">
+					<p class="control-tag">Blitz</p>
+					{{ form.blitz(class="control-checkbox") }}
+				</div>
+				<div class="time-sub-box">
+					<p class="control-tag">Bullet</p>
+					{{ form.bullet(class="control-checkbox") }}
+				</div>
 			</div>
 			<div class="number-box">
 				<p>Number of games</p>
-				<!-- <input type="range" class="slider" min="1" max="200" id="gamesSlider" onchange="displayNumber(this.value);"> -->
 				{{ form.max_games(class="slider", min="1", max="500", id="gamesSlider", onchange="displayNumber(this.value);")}}
 				<span id="gamesNum">250</span>
 			</div>
 			<div class="run-box">
-				<!-- <a id="runButton" href="/results">RUN</a> -->
 				{{ form.submit(id="runButton") }}
 			</div>
 		</form>

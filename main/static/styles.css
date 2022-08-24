@@ -44,6 +44,23 @@ body {
 	margin-left: 1rem;
 }
 
+.time-control-box {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+}
+
+.time-sub-box {
+	display: flex;
+	justify-content: flex-end;
+	margin-bottom: 1rem;
+	margin-right: 1rem;
+}
+
+.control-tag {
+	margin-right: 5px;
+}
+
 .number-box {
 	display: flex;
 	justify-content: center;
