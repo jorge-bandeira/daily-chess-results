@@ -15,10 +15,14 @@
 	</header>
 	<section>
 		<div class="plot-box">
+			{{ num_div | safe }}
+			
+		</div>
+		<div class="plot-box">
 			{{ rating_div | safe }}	
 		</div>
 		<div class="plot-box">
-			{{ num_div | safe }}
+			{{ scatter_div | safe }}
 		</div>
 	</section>
 </body>

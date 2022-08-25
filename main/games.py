@@ -2,6 +2,7 @@ import requests, ndjson, plotly
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
+import plotly.express as px
 
 #request structure
 api_url = "https://lichess.org/api/games/user/"
@@ -29,7 +30,8 @@ def getData(user, max, time_control):
 	df = createDf(games, user)
 	rating_div = createRateDiffDf(df)
 	num_div = createGamesNumDf(df)
-	return rating_div, num_div
+	scatter_div = createScatterDf(df)
+	return rating_div, num_div, scatter_div
 
 #api request
 def createRequest(url, headers, params):
@@ -72,6 +74,7 @@ def createDf(games, user):
 
 	return df_games
 
+#rating heatmap
 def createRateDiffDf(df):
 	heatMap_df = df[['day_of_week', 'hour', 'user_rate_diff']]
 	heatMap_df = heatMap_df.groupby(['day_of_week', 'hour'])['user_rate_diff'].sum().reset_index()
@@ -100,7 +103,7 @@ def createRateDiffDf(df):
 	plot_div = plotly.io.to_html(heatMap_fig, include_plotlyjs=True, full_html=False)
 	return plot_div
 
-
+#number of games heatmap
 def createGamesNumDf(df):
 	heatMap_n_df = df[['day_of_week', 'hour', 'user_rate_diff']]
 	heatMap_n_df = heatMap_n_df.groupby(['day_of_week', 'hour'])['user_rate_diff'].count().reset_index()
@@ -128,3 +131,28 @@ def createGamesNumDf(df):
 	# heatMap_n_fig.write_html("plot_n.html")
 	plot_div_n = plotly.io.to_html(heatMap_n_fig, include_plotlyjs=True, full_html=False)
 	return plot_div_n
+
+#number of games vs rating diff
+def createScatterDf(df):
+	scatterDf = df
+	scatterDf['day'] = df['date'].dt.date
+	scatterDf = scatterDf[['day', 'user_rate_diff']]
+	scatterDf = scatterDf.groupby('day').agg({'user_rate_diff':['count', 'sum']})
+	scatterDf.columns = ['games_num', 'rating_change']
+	scatterDf = scatterDf.reset_index()
+	scatterFig = px.scatter(scatterDf, x='games_num', y='rating_change', color='rating_change', color_continuous_scale=px.colors.sequential.Viridis)
+	scatterFig.update_layout(
+		title = 'Rating Change vs Number of Games',
+		xaxis_title = 'Number of games',
+		yaxis_title = 'Rating change',
+		xaxis_showgrid = False,
+	    yaxis_showgrid = False,
+	    xaxis_zeroline = False,
+	    yaxis_zeroline = False,
+		paper_bgcolor='rgba(0,0,0,0)',
+	    plot_bgcolor='rgba(0,0,0,0)',
+	    font = dict(color = 'white')
+		)
+	scatterFig.update_coloraxes(showscale=False)
+	scatter_div = plotly.io.to_html(scatterFig, include_plotlyjs=True, full_html=False)
+	return scatter_div
