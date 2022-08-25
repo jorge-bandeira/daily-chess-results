@@ -21,7 +21,16 @@ def results():
 		user = form.user.data
 		max_games = form.max_games.data
 		form.user.data = ''
-		games.getData(user, max_games)
-		return render_template('results.html', user = user, max_games = max_games)
+		time_control = []
+		if form.classical.data:
+			time_control.append('classical')
+		if form.rapid.data:
+			time_control.append('rapid')
+		if form.blitz.data:
+			time_control.append('blitz')
+		if form.bullet.data:
+			time_control.append('bullet')
+		rating_div, num_div = games.getData(user, max_games, time_control)
+		return render_template('results.html', user = user, max_games = max_games, rating_div = rating_div, num_div = num_div)
 	else:
 		return render_template('error.html')

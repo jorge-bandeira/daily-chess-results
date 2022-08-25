@@ -1,4 +1,4 @@
-import requests, ndjson
+import requests, ndjson, plotly
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
@@ -10,11 +10,12 @@ headers = {
 	"Accept": "application/x-ndjson"
 }
 
-def getData(user, max):
+def getData(user, max, time_control):
+	time_control_string = ','.join(time_control)
 	params = {
 	"max": str(max),
 	"rated": "true",
-	"perfType": "rapid",
+	"perfType": time_control_string,
 	"pgnInJson": "true"
 	}
 	url = api_url + user
@@ -23,11 +24,12 @@ def getData(user, max):
 		print('no result')
 	else:
 		print('r: ' + games_request)
-	# gdata = ndjson.loads(games_request)
-	# games = getGames(gdata)
-	# df = createDf(games, user)
-	# createRateDiffDf(df)
-	# createGamesNumDf(df)
+	gdata = ndjson.loads(games_request)
+	games = getGames(gdata)
+	df = createDf(games, user)
+	rating_div = createRateDiffDf(df)
+	num_div = createGamesNumDf(df)
+	return rating_div, num_div
 
 #api request
 def createRequest(url, headers, params):
@@ -89,9 +91,15 @@ def createRateDiffDf(df):
 	    xaxis_showgrid = False,
 	    yaxis_showgrid = False,
 	    xaxis_zeroline = False,
-	    yaxis_zeroline = False
+	    yaxis_zeroline = False,
+	    paper_bgcolor='rgba(0,0,0,0)',
+	    plot_bgcolor='rgba(0,0,0,0)',
+	    font = dict(color = 'white')
 		)
-	heatMap_fig.write_html("plot.html")
+	# heatMap_fig.write_html("plot.html")
+	plot_div = plotly.io.to_html(heatMap_fig, include_plotlyjs=True, full_html=False)
+	return plot_div
+
 
 def createGamesNumDf(df):
 	heatMap_n_df = df[['day_of_week', 'hour', 'user_rate_diff']]
@@ -112,6 +120,11 @@ def createGamesNumDf(df):
 	    xaxis_showgrid = False,
 	    yaxis_showgrid = False,
 	    xaxis_zeroline = False,
-	    yaxis_zeroline = False
+	    yaxis_zeroline = False,
+	    paper_bgcolor='rgba(0,0,0,0)',
+	    plot_bgcolor='rgba(0,0,0,0)',
+	    font = dict(color = 'white')
 		)
-	heatMap_n_fig.write_html("plot_n.html")
+	# heatMap_n_fig.write_html("plot_n.html")
+	plot_div_n = plotly.io.to_html(heatMap_n_fig, include_plotlyjs=True, full_html=False)
+	return plot_div_n
