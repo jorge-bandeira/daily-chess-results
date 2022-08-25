@@ -103,3 +103,11 @@ body {
 	margin-left: 1rem;
 	margin-right: 1rem;
 }
+
+#controlError {
+	display: flex;
+	justify-content: center;
+	color: red;
+	font-size: 12px;
+	margin-bottom: 1rem;
+}

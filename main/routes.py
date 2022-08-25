@@ -30,7 +30,12 @@ def results():
 			time_control.append('blitz')
 		if form.bullet.data:
 			time_control.append('bullet')
-		rating_div, num_div = games.getData(user, max_games, time_control)
-		return render_template('results.html', user = user, max_games = max_games, rating_div = rating_div, num_div = num_div)
+		
+		if len(time_control) == 0:
+			noControl = True
+			return render_template('home.html', noControl = noControl)
+		else:
+			rating_div, num_div = games.getData(user, max_games, time_control)
+			return render_template('results.html', user = user, max_games = max_games, rating_div = rating_div, num_div = num_div)
 	else:
 		return render_template('error.html')
