@@ -92,3 +92,14 @@ body {
 #runButton:hover {
 	background-color: #1281a3;
 }
+
+.result-header {
+	margin-top: 1rem;
+	margin-left: 1rem;
+	margin-right: 1rem;
+}
+
+.plot-box {
+	margin-left: 1rem;
+	margin-right: 1rem;
+}

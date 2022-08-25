@@ -8,11 +8,18 @@
 	<title>Daily Chess Performance</title>
 </head>
 <body>
-	<h1>Results</h1>
-	<p>{{ user }}</p>
-	<p>{{ max_games }}</p>
-	{{ rating_div | safe }}
-	<br>
-	{{ num_div | safe }}
+	<header>
+		<div class="result-header">
+			<h2>Displaying data for the last {{ max_games }} games of {{ user }}</h2>
+		</div>
+	</header>
+	<section>
+		<div class="plot-box">
+			{{ rating_div | safe }}	
+		</div>
+		<div class="plot-box">
+			{{ num_div | safe }}
+		</div>
+	</section>
 </body>
 </html>
