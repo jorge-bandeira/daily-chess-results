@@ -10,13 +10,16 @@
 <body>
 	<header>
 		<div class="result-header">
-			<h2>Displaying data for the last {{ max_games }} games of {{ user }}</h2>
+			<h2>Displaying data for the last 
+				<span class="result-tag">{{ max_games }}</span>
+				 games of 
+				<span class="result-tag">{{ user }}</span>
+			</h2>
 		</div>
 	</header>
 	<section>
 		<div class="plot-box">
-			{{ num_div | safe }}
-			
+			{{ num_div | safe }}	
 		</div>
 		<div class="plot-box">
 			{{ rating_div | safe }}	
