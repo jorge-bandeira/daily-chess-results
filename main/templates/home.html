@@ -5,14 +5,14 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" type="text/css" href="static/styles.css">
 	<script type="text/javascript" src="static/scripts.js"></script>
-	<title>Daily Chess Performance</title>
+	<title>Daily Chess</title>
 </head>
 <body>
 	<div class="main-box">
 		<div class="title-box">
 			<h1 class="title">Daily Chess</h1>
 		</div>
-		<form action="/results" method="POST">
+		<form action="/results" method="POST" onsubmit="displayLoader()">
 			{{ form.hidden_tag() }}
 			<div class="user-box">
 				<p>Lichess User Name</p>
@@ -50,6 +50,11 @@
 				{{ form.submit(id="runButton") }}
 			</div>
 		</form>
+	</div>
+	<div class="bottom-box">
+		<div class="loader-box">
+			<div class="loader" id="loadSpinner"></div>
+		</div>
 		<div class="piece-box">
 			<span class="piece">&#9814;</span>
 			<span class="piece">&#9816;</span>
@@ -58,5 +63,13 @@
 			<span class="piece">&#9815;</span>
 		</div>
 	</div>
+	<script type="text/javascript">
+		window.onpageshow = function(e) {
+			let loadSpinner = document.getElementById("loadSpinner");
+			let mainBox = document.getElementsByClassName("main-box")[0];
+			mainBox.style.display = "block"
+			loadSpinner.style.display = "none";
+		}
+	</script>
 </body>
 </html>
