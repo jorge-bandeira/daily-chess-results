@@ -81,7 +81,7 @@ body {
 
 #runButton {
 	width: 75px;
-	background-color: #2959a6;
+	background-color: #005CC8;
 	border: none;
 	font-size: 18px;
 	margin-top: 1rem;
@@ -90,7 +90,11 @@ body {
 }
 
 #runButton:hover {
-	background-color: #1281a3;
+	background-color: #1459AA;
+}
+
+#runButton:active {
+	background-color: #005CC8;
 }
 
 .result-header {

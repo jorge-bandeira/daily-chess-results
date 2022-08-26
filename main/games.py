@@ -21,10 +21,6 @@ def getData(user, max, time_control):
 	}
 	url = api_url + user
 	games_request = createRequest(url, headers, params)
-	if games_request == "":
-		print('no result')
-	else:
-		print('r: ' + games_request)
 	gdata = ndjson.loads(games_request)
 	games = getGames(gdata)
 	df = createDf(games, user)
@@ -35,7 +31,12 @@ def getData(user, max, time_control):
 
 #api request
 def createRequest(url, headers, params):
-	games_request = requests.get(url, headers = headers, params = params).text
+	try:
+		games_request = requests.get(url, headers = headers, params = params).text
+		print(games_request)
+	except:
+		print("error on " + url)
+		return None
 	return games_request
 
 #create list of games
