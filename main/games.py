@@ -20,24 +20,28 @@ def getData(user, max, time_control):
 	"pgnInJson": "true"
 	}
 	url = api_url + user
-	games_request = createRequest(url, headers, params)
-	gdata = ndjson.loads(games_request)
-	games = getGames(gdata)
-	df = createDf(games, user)
-	rating_div = createRateDiffDf(df)
-	num_div = createGamesNumDf(df)
-	scatter_div = createScatterDf(df)
-	return rating_div, num_div, scatter_div
+	games_response = createRequest(url, headers, params)
+	if games_response == 'error':
+		return 'error', 'error', 'error'
+	else:
+		gdata = ndjson.loads(games_response)
+		games = getGames(gdata)
+		df = createDf(games, user)
+		rating_div = createRateDiffDf(df)
+		num_div = createGamesNumDf(df)
+		scatter_div = createScatterDf(df)
+		return rating_div, num_div, scatter_div
 
 #api request
 def createRequest(url, headers, params):
-	try:
-		games_request = requests.get(url, headers = headers, params = params).text
-		print(games_request)
-	except:
-		print("error on " + url)
-		return None
-	return games_request
+	r = requests.get(url, headers = headers, params = params)
+	if r.status_code == 404:
+		print('404 error')
+		return 'error'
+	else:
+		games_response = r.text
+		return games_response
+	
 
 #create list of games
 def getGames(data):

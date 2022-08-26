@@ -119,3 +119,14 @@ body {
 .result-tag {
 	color: #14ade0;
 }
+
+.error-box {
+	display: flex;
+	align-content: center;
+	justify-content: center;
+	margin-top: 100px;
+}
+
+#goBack {
+	margin-left: 1rem;
+}
