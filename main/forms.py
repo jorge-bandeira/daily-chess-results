@@ -4,7 +4,7 @@ from wtforms.validators import DataRequired
 
 class MainForm(FlaskForm):
 	user = StringField("...", validators = [DataRequired()])
-	max_games = IntegerRangeField("", default = 250)
+	max_games = IntegerRangeField("", default = 500)
 	classical = BooleanField()
 	rapid = BooleanField()
 	blitz = BooleanField()
