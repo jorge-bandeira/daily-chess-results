@@ -130,3 +130,12 @@ body {
 #goBack {
 	margin-left: 1rem;
 }
+
+#userLink {
+	color: #14ade0;
+	text-decoration: none;
+}
+
+#userLink:hover {
+	color: #1a89ad;
+}
