@@ -31,6 +31,7 @@ def getData(user, max, time_control):
 		rating_div = createRateDiffDf(df)
 		num_div = createGamesNumDf(df)
 		scatter_div = createScatterDf(df)
+		getInsights(df)
 		return rating_div, num_div, scatter_div, games_count
 
 #api request
@@ -162,3 +163,7 @@ def createScatterDf(df):
 	scatterFig.update_coloraxes(showscale=False)
 	scatter_div = plotly.io.to_html(scatterFig, include_plotlyjs=True, full_html=False)
 	return scatter_div
+
+def getInsights(df):
+	weekend_num = df[(df.day_of_week == "Saturday") | (df.day_of_week == "Sunday")].count()["id"]
+	week_num = df[(df.day_of_week != "Saturday") & (df.day_of_week != "Sunday")].count()["id"]
