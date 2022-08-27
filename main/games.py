@@ -27,10 +27,11 @@ def getData(user, max, time_control):
 		gdata = ndjson.loads(games_response)
 		games = getGames(gdata)
 		df = createDf(games, user)
+		games_count = len(df.index)
 		rating_div = createRateDiffDf(df)
 		num_div = createGamesNumDf(df)
 		scatter_div = createScatterDf(df)
-		return rating_div, num_div, scatter_div
+		return rating_div, num_div, scatter_div, games_count
 
 #api request
 def createRequest(url, headers, params):

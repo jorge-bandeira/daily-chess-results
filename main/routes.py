@@ -35,10 +35,16 @@ def results():
 			noControl = True
 			return render_template('home.html', noControl = noControl)
 		else:
-			rating_div, num_div, scatter_div = games.getData(user, max_games, time_control)
+			rating_div, num_div, scatter_div, count = games.getData(user, max_games, time_control)
 			if rating_div == 'error':
 				return render_template('error.html')
 			else:
-				return render_template('results.html', user = user, max_games = max_games, rating_div = rating_div, num_div = num_div, scatter_div = scatter_div)
+				return render_template('results.html',
+				 user = user,
+				 max_games = max_games,
+				 rating_div = rating_div,
+				 num_div = num_div,
+				 scatter_div = scatter_div,
+				 count = count)
 	else:
 		return render_template('error.html')
