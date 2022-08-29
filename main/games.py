@@ -31,8 +31,8 @@ def getData(user, max, time_control):
 		rating_div = createRateDiffDf(df)
 		num_div = createGamesNumDf(df)
 		scatter_div = createScatterDf(df)
-		getInsights(df)
-		return rating_div, num_div, scatter_div, games_count
+		insights = getInsights(df)
+		return rating_div, num_div, scatter_div, games_count, insights
 
 #api request
 def createRequest(url, headers, params):
@@ -179,6 +179,27 @@ def getInsights(df):
 	week_num = df[(df.day_of_week != "Saturday") & (df.day_of_week != "Sunday")].count()["id"]
 	weekend_rate_diff = df[(df.day_of_week == "Saturday") | (df.day_of_week == "Sunday")].sum()["user_rate_diff"]
 	week_rate_diff = df[(df.day_of_week != "Saturday") & (df.day_of_week != "Sunday")].sum()["user_rate_diff"]
+	
+	morning_num = df[df.time_of_day == "morning"].count()["id"]
+	afternoon_num = df[df.time_of_day != "afternoon"].count()["id"]
+	night_num = df[df.time_of_day != "night"].count()["id"]
+	
+	morning_rate_diff = df[df.time_of_day == "morning"].sum()["user_rate_diff"]
+	afternoon_rate_diff = df[df.time_of_day != "afternoon"].sum()["user_rate_diff"]
+	night_rate_diff = df[df.time_of_day != "night"].sum()["user_rate_diff"]
+
 	performance_weekend = weekend_rate_diff / weekend_num
 	performance_week = week_rate_diff / week_num
-	return performance_week, performance_weekend
+	
+	performance_morning = morning_rate_diff / morning_num
+	performance_afternoon = afternoon_rate_diff / afternoon_num
+	performance_night = night_rate_diff / night_num
+
+	insights = {
+		'performance_week': round(performance_week, 2),
+		'performance_weekend': round(performance_weekend,2),
+		'performance_morning': round(performance_morning,2),
+		'performance_afternoon': round(performance_afternoon,2),
+		'performance_night': round(performance_night,2)
+	}
+	return insights

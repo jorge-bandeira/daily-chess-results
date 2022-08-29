@@ -24,6 +24,17 @@
 		<div class="plot-box">
 			{{ rating_div | safe }}	
 		</div>
+		<div class="insight-box">
+			<h2>Insights</h2>
+			<p>
+				<span class="result-tag"><a href="https://lichess.org/@/{{ user }}" id="userLink">{{ user }}</a></span>
+				{% if insights['performance_week'] > insights['performance_weekend'] %}
+				performs better on week days with an average <span class="result-tag">{{ insights['performance_week'] }}</span>  rating change per game vs <span class="result-tag">{{ insights['performance_weekend'] }}</span> on weekends.
+				{% else %}
+				performs better on weekends with an average <span class="result-tag">{{ insights['performance_weekend'] }}</span>  rating change per game vs <span class="result-tag">{{ insights['performance_week'] }}</span> on week days.
+				{% endif %}
+			</p>
+		</div>
 		<div class="plot-box">
 			{{ scatter_div | safe }}
 		</div>
