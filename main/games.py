@@ -75,10 +75,19 @@ def createDf(games, user):
 	df_games['day_of_week'] = df_games['date'].dt.day_name()
 	df_games['hour'] = df_games['date'].dt.hour
 
+	#add morning 6 - 12 / afternoon 13 - 20 / night 21 - 5
+	conditions = [
+		(df_games['hour'] > 5) & (df_games['hour'] <= 13),
+		(df_games['hour'] > 13) & (df_games['hour'] <= 21),
+		(df_games['hour'] > 21)
+	]
+	choices = ['morning', 'afternoon', 'night']
+	df_games['time_of_day'] = np.select(conditions, choices, default='error')
+	print(df_games)
+
 	#add user result
 	df_games['user_color'] = np.where(df_games['white'] == user, "white", "black")
 	df_games['user_rate_diff'] = np.where(df_games['white'] == user, df_games['white_rating_diff'], df_games['black_rating_diff'])
-
 	return df_games
 
 #rating heatmap
@@ -147,6 +156,7 @@ def createScatterDf(df):
 	scatterDf = scatterDf.groupby('day').agg({'user_rate_diff':['count', 'sum']})
 	scatterDf.columns = ['games_num', 'rating_change']
 	scatterDf = scatterDf.reset_index()
+	correlation = scatterDf['games_num'].corr(scatterDf['rating_change'])
 	scatterFig = px.scatter(scatterDf, x='games_num', y='rating_change', color='rating_change', color_continuous_scale=px.colors.sequential.Viridis)
 	scatterFig.update_layout(
 		title = 'Rating Change vs Number of Games',
@@ -167,3 +177,8 @@ def createScatterDf(df):
 def getInsights(df):
 	weekend_num = df[(df.day_of_week == "Saturday") | (df.day_of_week == "Sunday")].count()["id"]
 	week_num = df[(df.day_of_week != "Saturday") & (df.day_of_week != "Sunday")].count()["id"]
+	weekend_rate_diff = df[(df.day_of_week == "Saturday") | (df.day_of_week == "Sunday")].sum()["user_rate_diff"]
+	week_rate_diff = df[(df.day_of_week != "Saturday") & (df.day_of_week != "Sunday")].sum()["user_rate_diff"]
+	performance_weekend = weekend_rate_diff / weekend_num
+	performance_week = week_rate_diff / week_num
+	return performance_week, performance_weekend
