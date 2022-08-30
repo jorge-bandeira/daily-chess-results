@@ -17,7 +17,7 @@ def getData(user, max, time_control):
 	"max": str(max),
 	"rated": "true",
 	"perfType": time_control_string,
-	"pgnInJson": "true"
+	"pgnInJson": "false"
 	}
 	url = api_url + user
 	games_response = createRequest(url, headers, params)
@@ -49,7 +49,8 @@ def createRequest(url, headers, params):
 def getGames(data):
 	games = []
 	for g in data:
-		gdict = {
+		try:
+			gdict = {
 			"id": g['id'],
 			"rated": g['rated'],
 			"variant": g['variant'],
@@ -62,8 +63,11 @@ def getGames(data):
 			"black_rating": g['players']['black']['rating'],
 			"black_rating_diff": g['players']['black']['ratingDiff'],
 			"status": g['status']
-		}
-		games.append(gdict)
+			}
+			games.append(gdict)
+		except:
+			print("data error")
+			continue
 	return games	
 
 #create pandas dataframe
