@@ -79,15 +79,14 @@ def createDf(games, user):
 	df_games['day_of_week'] = df_games['date'].dt.day_name()
 	df_games['hour'] = df_games['date'].dt.hour
 
-	#add morning 6 - 12 / afternoon 13 - 20 / night 21 - 5
+	#add morning 6 - 12 / afternoon 12 - 20 / night 20 - 5
 	conditions = [
-		(df_games['hour'] > 5) & (df_games['hour'] <= 13),
-		(df_games['hour'] > 13) & (df_games['hour'] <= 21),
-		(df_games['hour'] > 21)
+		(df_games['hour'] > 5) & (df_games['hour'] <= 12),
+		(df_games['hour'] > 12) & (df_games['hour'] <= 20),
+		(df_games['hour'] > 20)
 	]
 	choices = ['morning', 'afternoon', 'night']
 	df_games['time_of_day'] = np.select(conditions, choices, default='error')
-	print(df_games)
 
 	#add user result
 	df_games['user_color'] = np.where(df_games['white'] == user, "white", "black")
@@ -119,7 +118,7 @@ def createRateDiffDf(df):
 	    plot_bgcolor='rgba(0,0,0,0)',
 	    font = dict(color = 'white')
 		)
-	# heatMap_fig.write_html("plot.html")
+	heatMap_fig.update_xaxes(type='category', autorange='reversed')
 	plot_div = plotly.io.to_html(heatMap_fig, include_plotlyjs=True, full_html=False)
 	return plot_div
 
@@ -133,9 +132,10 @@ def createGamesNumDf(df):
 		ordered = True
 		)
 	heatMap_n_df = heatMap_n_df.sort_values('day_of_week')
+	heatMap_n_df.rename(columns = {'user_rate_diff':'num_games'}, inplace=True )
 	x = heatMap_n_df['hour']
 	y = heatMap_n_df['day_of_week']
-	z = heatMap_n_df['user_rate_diff']
+	z = heatMap_n_df['num_games']
 	heatMap_n_fig = go.Figure(data=go.Heatmap(x=x, y=y, z=z, colorscale='Viridis', hoverongaps=False))
 	heatMap_n_fig.update_layout(
 		title = 'Daily Chess Games',
@@ -148,7 +148,7 @@ def createGamesNumDf(df):
 	    plot_bgcolor='rgba(0,0,0,0)',
 	    font = dict(color = 'white')
 		)
-	# heatMap_n_fig.write_html("plot_n.html")
+	heatMap_n_fig.update_xaxes(type='category', autorange='reversed')
 	plot_div_n = plotly.io.to_html(heatMap_n_fig, include_plotlyjs=True, full_html=False)
 	return plot_div_n
 
@@ -199,11 +199,30 @@ def getInsights(df):
 	performance_afternoon = afternoon_rate_diff / afternoon_num
 	performance_night = night_rate_diff / night_num
 
+	max_day = getMaxGames(df)
+	best_day = getBestDay(df)
+
 	insights = {
 		'performance_week': round(performance_week, 2),
 		'performance_weekend': round(performance_weekend,2),
 		'performance_morning': round(performance_morning,2),
 		'performance_afternoon': round(performance_afternoon,2),
-		'performance_night': round(performance_night,2)
+		'performance_night': round(performance_night,2),
+		'max_day': max_day,
+		'best_day': best_day
 	}
 	return insights
+
+def getMaxGames(df):
+	max_n_df = df[['day_of_week','user_rate_diff']]
+	max_n_df = max_n_df.groupby(['day_of_week'])['user_rate_diff'].count().reset_index()
+	max_n_df = max_n_df.loc[max_n_df['user_rate_diff'].idxmax()]
+	max_day = max_n_df['day_of_week']
+	return max_day
+
+def getBestDay(df):
+	best_df = df[['day_of_week','user_rate_diff']]
+	best_df = best_df.groupby(['day_of_week'])['user_rate_diff'].sum().reset_index()
+	best_df = best_df.loc[best_df['user_rate_diff'].idxmax()]
+	best_day = best_df['day_of_week']
+	return best_day
