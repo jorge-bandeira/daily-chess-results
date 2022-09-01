@@ -1,4 +1,4 @@
-import requests, ndjson, plotly
+import requests, ndjson, plotly, datetime
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
@@ -88,6 +88,9 @@ def createDf(games, user):
 	choices = ['morning', 'afternoon', 'night']
 	df_games['time_of_day'] = np.select(conditions, choices, default='error')
 
+	#change hour format to 00:00
+	df_games['hour'] = df_games['date'].dt.strftime('%H').add(':00')
+
 	#add user result
 	df_games['user_color'] = np.where(df_games['white'] == user, "white", "black")
 	df_games['user_rate_diff'] = np.where(df_games['white'] == user, df_games['white_rating_diff'], df_games['black_rating_diff'])
@@ -102,10 +105,18 @@ def createRateDiffDf(df):
 		categories = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday', 'Sunday'],
 		ordered = True
 		)
+	# heatMap_df['hour'] = pd.Categorical(
+	# 	heatMap_df['hour'],
+	# 	categories = ['06:00','07:00','08:00','09:00','10:00','11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00',
+	# 		'18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00', '01:00', '02:00', '03:00', '04:00', '05:00'],
+	# 	ordered = True
+	# 	)
 	heatMap_df = heatMap_df.sort_values('day_of_week')
 	x = heatMap_df['hour']
 	y = heatMap_df['day_of_week']
 	z = heatMap_df['user_rate_diff']
+	x_order = ['06:00','07:00','08:00','09:00','10:00','11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00',
+			'18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00', '01:00', '02:00', '03:00', '04:00', '05:00']
 	heatMap_fig = go.Figure(data=go.Heatmap(x=x, y=y, z=z, colorscale='Viridis', hoverongaps=False))
 	heatMap_fig.update_layout(
 		title = 'Daily Chess Rating Change',
@@ -118,7 +129,7 @@ def createRateDiffDf(df):
 	    plot_bgcolor='rgba(0,0,0,0)',
 	    font = dict(color = 'white')
 		)
-	heatMap_fig.update_xaxes(type='category', autorange='reversed')
+	heatMap_fig.update_xaxes(categoryarray = x_order)
 	plot_div = plotly.io.to_html(heatMap_fig, include_plotlyjs=True, full_html=False)
 	return plot_div
 
@@ -136,6 +147,8 @@ def createGamesNumDf(df):
 	x = heatMap_n_df['hour']
 	y = heatMap_n_df['day_of_week']
 	z = heatMap_n_df['num_games']
+	x_order = ['06:00','07:00','08:00','09:00','10:00','11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00',
+			'18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00', '01:00', '02:00', '03:00', '04:00', '05:00']
 	heatMap_n_fig = go.Figure(data=go.Heatmap(x=x, y=y, z=z, colorscale='Viridis', hoverongaps=False))
 	heatMap_n_fig.update_layout(
 		title = 'Daily Chess Games',
@@ -148,7 +161,7 @@ def createGamesNumDf(df):
 	    plot_bgcolor='rgba(0,0,0,0)',
 	    font = dict(color = 'white')
 		)
-	heatMap_n_fig.update_xaxes(type='category', autorange='reversed')
+	heatMap_n_fig.update_xaxes(categoryarray = x_order)
 	plot_div_n = plotly.io.to_html(heatMap_n_fig, include_plotlyjs=True, full_html=False)
 	return plot_div_n
 
