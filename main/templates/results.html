@@ -35,12 +35,24 @@
 				{% endif %}
 			</p>
 			<p>Most games were played on <span class="result-tag">{{ insights['max_day'] }}s</span> and the best performance was achieved on
-				<span class="result-tag">{{ insights['best_day'] }}s</span>
+				<span class="result-tag">{{ insights['best_day'] }}s</span>.
 			</p>
 		</div>
 		<div class="plot-box">
 			{{ scatter_div | safe }}
 		</div>
+		<div class="insight-box">
+			The correlation between rating gain and number of games played in a day is <span class="result-tag">{{ insights['corr'] }}</span>.
+		</div>
 	</section>
+	<footer>
+		<div class="piece-box">
+			<span class="piece">&#9814;</span>
+			<span class="piece">&#9816;</span>
+			<span class="piece">&#9812;</span>
+			<span class="piece">&#9813;</span>
+			<span class="piece">&#9815;</span>
+		</div>
+	</footer>
 </body>
 </html>

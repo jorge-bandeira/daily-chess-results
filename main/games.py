@@ -30,8 +30,9 @@ def getData(user, max, time_control):
 		games_count = len(df.index)
 		rating_div = createRateDiffDf(df)
 		num_div = createGamesNumDf(df)
-		scatter_div = createScatterDf(df)
+		scatter_div, c = createScatterDf(df)
 		insights = getInsights(df)
+		insights['corr'] = round(c,2)
 		return rating_div, num_div, scatter_div, games_count, insights
 
 #api request
@@ -105,12 +106,6 @@ def createRateDiffDf(df):
 		categories = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday', 'Sunday'],
 		ordered = True
 		)
-	# heatMap_df['hour'] = pd.Categorical(
-	# 	heatMap_df['hour'],
-	# 	categories = ['06:00','07:00','08:00','09:00','10:00','11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00',
-	# 		'18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00', '01:00', '02:00', '03:00', '04:00', '05:00'],
-	# 	ordered = True
-	# 	)
 	heatMap_df = heatMap_df.sort_values('day_of_week')
 	x = heatMap_df['hour']
 	y = heatMap_df['day_of_week']
@@ -174,7 +169,7 @@ def createScatterDf(df):
 	scatterDf.columns = ['games_num', 'rating_change']
 	scatterDf = scatterDf.reset_index()
 	correlation = scatterDf['games_num'].corr(scatterDf['rating_change'])
-	scatterFig = px.scatter(scatterDf, x='games_num', y='rating_change', color='rating_change', color_continuous_scale=px.colors.sequential.Viridis)
+	scatterFig = px.scatter(scatterDf, x='games_num', y='rating_change', color='rating_change', color_continuous_scale=px.colors.sequential.Viridis, trendline='ols')
 	scatterFig.update_layout(
 		title = 'Rating Change vs Number of Games',
 		xaxis_title = 'Number of games',
@@ -189,7 +184,7 @@ def createScatterDf(df):
 		)
 	scatterFig.update_coloraxes(showscale=False)
 	scatter_div = plotly.io.to_html(scatterFig, include_plotlyjs=True, full_html=False)
-	return scatter_div
+	return scatter_div, correlation
 
 def getInsights(df):
 	weekend_num = df[(df.day_of_week == "Saturday") | (df.day_of_week == "Sunday")].count()["id"]

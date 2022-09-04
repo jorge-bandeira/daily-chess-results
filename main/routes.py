@@ -1,4 +1,4 @@
-from main import app, games
+from main import app, games, local_settings
 from main.forms import MainForm
 from flask import render_template
 
@@ -10,7 +10,8 @@ def base():
 @app.route('/')
 @app.route('/home')
 def home():
-	return render_template('home.html')
+	max_games = local_settings.max_games
+	return render_template('home.html', max = max_games)
 
 @app.route('/results', methods = ['POST'])
 def results():

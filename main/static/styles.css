@@ -10,10 +10,11 @@ body {
 	background-color: #1e2126;
 }
 
+/*home*/
+
 .main-box {
 	width: 100%;
 	margin-top: 100px;
-	margin-right: 50px;
 }
 
 .title-box {
@@ -93,49 +94,6 @@ body {
 	background-color: #005CC8;
 }
 
-.result-header {
-	margin-top: 1rem;
-	margin-left: 1rem;
-	margin-right: 1rem;
-}
-
-.plot-box {
-	margin-left: 1rem;
-	margin-right: 1rem;
-}
-
-#controlError {
-	display: flex;
-	justify-content: center;
-	color: red;
-	font-size: 12px;
-	margin-bottom: 1rem;
-}
-
-.result-tag {
-	color: #14ade0;
-}
-
-.error-box {
-	display: flex;
-	align-content: center;
-	justify-content: center;
-	margin-top: 100px;
-}
-
-#goBack {
-	margin-left: 1rem;
-}
-
-#userLink {
-	color: #14ade0;
-	text-decoration: none;
-}
-
-#userLink:hover {
-	color: #1a89ad;
-}
-
 .bottom-box {
 	width: 100%;
 }
@@ -146,11 +104,6 @@ body {
 	align-items: center;
 	margin-top: 1rem;
 	font-size: 45px;
-}
-
-.insight-box {
-	margin-left: 1rem;
-	margin-bottom: 1rem;
 }
 
 .loader-box {
@@ -172,4 +125,56 @@ body {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/*result*/
+
+.result-header {
+	margin-top: 2rem;
+	margin-left: 2rem;
+	margin-right: 2rem;
+}
+
+.plot-box {
+	margin-left: 2rem;
+	margin-right: 2rem;
+}
+
+.insight-box {
+	margin-left: 3rem;
+	margin-bottom: 1rem;
+}
+
+.result-tag {
+	color: #14ade0;
+}
+
+#userLink {
+	color: #14ade0;
+	text-decoration: none;
+}
+
+#userLink:hover {
+	color: #1a89ad;
+}
+
+/*error*/
+
+#controlError {
+	display: flex;
+	justify-content: center;
+	color: red;
+	font-size: 12px;
+	margin-bottom: 1rem;
+}
+
+.error-box {
+	display: flex;
+	align-content: center;
+	justify-content: center;
+	margin-top: 100px;
+}
+
+#goBack {
+	margin-left: 1rem;
 }
