@@ -1,4 +1,4 @@
-from main import app, games
+from main import app, games, local_settings
 from main.forms import MainForm
 from flask import render_template
 
@@ -10,7 +10,8 @@ def base():
 @app.route('/')
 @app.route('/home')
 def home():
-	return render_template('home.html')
+	max_games = local_settings.max_games
+	return render_template('home.html', max = max_games)
 
 @app.route('/results', methods = ['POST'])
 def results():
@@ -35,7 +36,7 @@ def results():
 			noControl = True
 			return render_template('home.html', noControl = noControl)
 		else:
-			rating_div, num_div, scatter_div, count = games.getData(user, max_games, time_control)
+			rating_div, num_div, rating_div_avg, scatter_div, count, insights = games.getData(user, max_games, time_control)
 			if rating_div == 'error':
 				return render_template('error.html')
 			else:
@@ -44,7 +45,10 @@ def results():
 				 max_games = max_games,
 				 rating_div = rating_div,
 				 num_div = num_div,
+				 rating_div_avg = rating_div_avg,
 				 scatter_div = scatter_div,
-				 count = count)
+				 count = count,
+				 insights = insights
+				 )
 	else:
 		return render_template('error.html')
