@@ -30,10 +30,11 @@ def getData(user, max, time_control):
 		games_count = len(df.index)
 		rating_div = createRateDiffDf(df)
 		num_div = createGamesNumDf(df)
+		rating_div_avg = createAvgRateDiff(df)
 		scatter_div, c = createScatterDf(df)
 		insights = getInsights(df)
 		insights['corr'] = round(c,2)
-		return rating_div, num_div, scatter_div, games_count, insights
+		return rating_div, num_div, rating_div_avg, scatter_div, games_count, insights
 
 #api request
 def createRequest(url, headers, params):
@@ -97,37 +98,6 @@ def createDf(games, user):
 	df_games['user_rate_diff'] = np.where(df_games['white'] == user, df_games['white_rating_diff'], df_games['black_rating_diff'])
 	return df_games
 
-#rating heatmap
-def createRateDiffDf(df):
-	heatMap_df = df[['day_of_week', 'hour', 'user_rate_diff']]
-	heatMap_df = heatMap_df.groupby(['day_of_week', 'hour'])['user_rate_diff'].sum().reset_index()
-	heatMap_df['day_of_week'] = pd.Categorical(
-		heatMap_df['day_of_week'],
-		categories = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday', 'Sunday'],
-		ordered = True
-		)
-	heatMap_df = heatMap_df.sort_values('day_of_week')
-	x = heatMap_df['hour']
-	y = heatMap_df['day_of_week']
-	z = heatMap_df['user_rate_diff']
-	x_order = ['06:00','07:00','08:00','09:00','10:00','11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00',
-			'18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00', '01:00', '02:00', '03:00', '04:00', '05:00']
-	heatMap_fig = go.Figure(data=go.Heatmap(x=x, y=y, z=z, colorscale='Viridis', hoverongaps=False))
-	heatMap_fig.update_layout(
-		title = 'Daily Chess Rating Change',
-	    xaxis_title="Hour of Day",
-	    xaxis_showgrid = False,
-	    yaxis_showgrid = False,
-	    xaxis_zeroline = False,
-	    yaxis_zeroline = False,
-	    paper_bgcolor='rgba(0,0,0,0)',
-	    plot_bgcolor='rgba(0,0,0,0)',
-	    font = dict(color = 'white')
-		)
-	heatMap_fig.update_xaxes(categoryarray = x_order)
-	plot_div = plotly.io.to_html(heatMap_fig, include_plotlyjs=True, full_html=False)
-	return plot_div
-
 #number of games heatmap
 def createGamesNumDf(df):
 	heatMap_n_df = df[['day_of_week', 'hour', 'user_rate_diff']]
@@ -142,9 +112,7 @@ def createGamesNumDf(df):
 	x = heatMap_n_df['hour']
 	y = heatMap_n_df['day_of_week']
 	z = heatMap_n_df['num_games']
-	x_order = ['06:00','07:00','08:00','09:00','10:00','11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00',
-			'18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00', '01:00', '02:00', '03:00', '04:00', '05:00']
-	heatMap_n_fig = go.Figure(data=go.Heatmap(x=x, y=y, z=z, colorscale='Viridis', hoverongaps=False))
+	heatMap_n_fig = heatmap(x, y, z)
 	heatMap_n_fig.update_layout(
 		title = 'Daily Chess Games',
 	    xaxis_title="Hour of Day",
@@ -156,9 +124,64 @@ def createGamesNumDf(df):
 	    plot_bgcolor='rgba(0,0,0,0)',
 	    font = dict(color = 'white')
 		)
-	heatMap_n_fig.update_xaxes(categoryarray = x_order)
 	plot_div_n = plotly.io.to_html(heatMap_n_fig, include_plotlyjs=True, full_html=False)
 	return plot_div_n
+
+#net rating heatmap
+def createRateDiffDf(df):
+	heatMap_df = df[['day_of_week', 'hour', 'user_rate_diff']]
+	heatMap_df = heatMap_df.groupby(['day_of_week', 'hour'])['user_rate_diff'].sum().reset_index()
+	heatMap_df['day_of_week'] = pd.Categorical(
+		heatMap_df['day_of_week'],
+		categories = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday', 'Sunday'],
+		ordered = True
+		)
+	heatMap_df = heatMap_df.sort_values('day_of_week')
+	x = heatMap_df['hour']
+	y = heatMap_df['day_of_week']
+	z = heatMap_df['user_rate_diff']
+	heatMap_fig = heatmap(x, y, z)
+	heatMap_fig.update_layout(
+		title = 'Net Rating Change',
+	    xaxis_title="Hour of Day",
+	    xaxis_showgrid = False,
+	    yaxis_showgrid = False,
+	    xaxis_zeroline = False,
+	    yaxis_zeroline = False,
+	    paper_bgcolor='rgba(0,0,0,0)',
+	    plot_bgcolor='rgba(0,0,0,0)',
+	    font = dict(color = 'white')
+		)
+	plot_div = plotly.io.to_html(heatMap_fig, include_plotlyjs=True, full_html=False)
+	return plot_div
+
+#average rating heatmap
+def createAvgRateDiff(df):
+	avg_df = df[['day_of_week', 'hour', 'user_rate_diff']]
+	avg_df = avg_df.groupby(['day_of_week', 'hour']).agg({'user_rate_diff':['count', 'sum']})
+	avg_df.columns = ['games_num', 'rating_change']
+	avg_df = avg_df.reset_index()
+	avg_df['diff_per_game'] = avg_df['rating_change'] / avg_df['games_num']
+	avg_df['day_of_week'] = pd.Categorical(
+		avg_df['day_of_week'],
+		categories = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday', 'Sunday'],
+		ordered = True
+		)
+	avg_df = avg_df.sort_values('day_of_week')
+	heatMap_avg_fig = heatmap(avg_df['hour'], avg_df['day_of_week'], avg_df['diff_per_game'])
+	heatMap_avg_fig.update_layout(
+		title = 'Average Rating Change',
+	    xaxis_title="Hour of Day",
+	    xaxis_showgrid = False,
+	    yaxis_showgrid = False,
+	    xaxis_zeroline = False,
+	    yaxis_zeroline = False,
+	    paper_bgcolor='rgba(0,0,0,0)',
+	    plot_bgcolor='rgba(0,0,0,0)',
+	    font = dict(color = 'white')
+		)
+	plot_div = plotly.io.to_html(heatMap_avg_fig, include_plotlyjs=True, full_html=False)
+	return plot_div
 
 #number of games vs rating diff
 def createScatterDf(df):
@@ -234,3 +257,10 @@ def getBestDay(df):
 	best_df = best_df.loc[best_df['user_rate_diff'].idxmax()]
 	best_day = best_df['day_of_week']
 	return best_day
+
+def heatmap(x, y, z):
+	x_order = ['06:00','07:00','08:00','09:00','10:00','11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00',
+			'18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00', '01:00', '02:00', '03:00', '04:00', '05:00']
+	heatmap = go.Figure(data=go.Heatmap(x=x, y=y, z=z, colorscale='Viridis', hoverongaps=False))
+	heatmap.update_xaxes(categoryarray = x_order)
+	return heatmap

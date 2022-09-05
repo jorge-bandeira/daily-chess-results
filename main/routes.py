@@ -36,7 +36,7 @@ def results():
 			noControl = True
 			return render_template('home.html', noControl = noControl)
 		else:
-			rating_div, num_div, scatter_div, count, insights = games.getData(user, max_games, time_control)
+			rating_div, num_div, rating_div_avg, scatter_div, count, insights = games.getData(user, max_games, time_control)
 			if rating_div == 'error':
 				return render_template('error.html')
 			else:
@@ -45,6 +45,7 @@ def results():
 				 max_games = max_games,
 				 rating_div = rating_div,
 				 num_div = num_div,
+				 rating_div_avg = rating_div_avg,
 				 scatter_div = scatter_div,
 				 count = count,
 				 insights = insights
