@@ -231,7 +231,7 @@ def getInsights(df):
 	performance_night = night_rate_diff / night_num
 
 	max_day = getMaxGames(df)
-	best_day = getBestDay(df)
+	best_day, worst_day = getBestDay(df)
 
 	insights = {
 		'performance_week': round(performance_week, 2),
@@ -240,7 +240,8 @@ def getInsights(df):
 		'performance_afternoon': round(performance_afternoon,2),
 		'performance_night': round(performance_night,2),
 		'max_day': max_day,
-		'best_day': best_day
+		'best_day': best_day,
+		'worst_day': worst_day
 	}
 	return insights
 
@@ -254,9 +255,11 @@ def getMaxGames(df):
 def getBestDay(df):
 	best_df = df[['day_of_week','user_rate_diff']]
 	best_df = best_df.groupby(['day_of_week'])['user_rate_diff'].sum().reset_index()
-	best_df = best_df.loc[best_df['user_rate_diff'].idxmax()]
-	best_day = best_df['day_of_week']
-	return best_day
+	best_df_max = best_df.loc[best_df['user_rate_diff'].idxmax()]
+	best_day = best_df_max['day_of_week']
+	best_df_min = best_df.loc[best_df['user_rate_diff'].idxmin()]
+	worst_day = best_df_min['day_of_week']
+	return best_day, worst_day
 
 def heatmap(x, y, z):
 	x_order = ['06:00','07:00','08:00','09:00','10:00','11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00',
