@@ -19,4 +19,3 @@ function displayLoader(){
 	mainBox.style.display = "none"
 	loadSpinner.style.display = "flex";
 }
-

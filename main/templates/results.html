@@ -10,21 +10,23 @@
 <body>
 	<header>
 		<div class="result-header">
-			<h2>Displaying data for the last 
+			<div class="header-box">
+				<h2 class="header-text">Displaying data for the last 
 				<span class="result-tag">{{ count }}</span>
 				 games of 
 				<span class="result-tag"><a href="https://lichess.org/@/{{ user }}" id="userLink">{{ user }}</a></span>
-			</h2>
+				</h2>
+			</div>
 		</div>
 	</header>
 	<section>
 		<div class="plot-box">
 			{{ num_div | safe }}	
 		</div>
-		<div class="plot-box">
+		<div class="plot-box" id="netPlot">
 			{{ rating_div | safe }}	
 		</div>
-		<div class="plot-box">
+		<div class="plot-box" id="avgPlot">
 			{{ rating_div_avg | safe }}
 		</div>
 		<div class="insight-box">

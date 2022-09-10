@@ -170,7 +170,7 @@ def createAvgRateDiff(df):
 	avg_df = avg_df.sort_values('day_of_week')
 	heatMap_avg_fig = heatmap(avg_df['hour'], avg_df['day_of_week'], avg_df['diff_per_game'])
 	heatMap_avg_fig.update_layout(
-		title = 'Average Rating Change',
+		title = 'Rating Change per Game',
 	    xaxis_title="Hour of Day",
 	    xaxis_showgrid = False,
 	    yaxis_showgrid = False,

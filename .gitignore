@@ -1,3 +1,4 @@
 ign
 local_settings.py
 todo.txt
+__pycache__

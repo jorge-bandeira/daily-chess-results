@@ -131,8 +131,13 @@ body {
 
 .result-header {
 	margin-top: 2rem;
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+}
+
+.header-box {
 	margin-left: 2rem;
-	margin-right: 2rem;
 }
 
 .plot-box {
