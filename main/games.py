@@ -161,7 +161,7 @@ def createAvgRateDiff(df):
 	avg_df = avg_df.groupby(['day_of_week', 'hour']).agg({'user_rate_diff':['count', 'sum']})
 	avg_df.columns = ['games_num', 'rating_change']
 	avg_df = avg_df.reset_index()
-	avg_df['diff_per_game'] = avg_df['rating_change'] / avg_df['games_num']
+	avg_df['diff_per_game'] = round(avg_df['rating_change'] / avg_df['games_num'],2)
 	avg_df['day_of_week'] = pd.Categorical(
 		avg_df['day_of_week'],
 		categories = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday', 'Sunday'],
