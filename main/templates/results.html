@@ -14,7 +14,7 @@
 				<h2 class="header-text">Displaying data for the last 
 				<span class="result-tag">{{ count }}</span>
 				 games of 
-				<span class="result-tag"><a href="https://lichess.org/@/{{ user }}" id="userLink">{{ user }}</a></span>
+				<span class="result-tag"><a href="https://lichess.org/@/{{ user }}" target="_blank" id="userLink">{{ user }}</a></span>
 				</h2>
 			</div>
 		</div>
@@ -31,6 +31,7 @@
 		</div>
 		<div class="insight-box">
 			<h2>Insights</h2>
+			<br>
 			<p>
 				<span class="result-tag"><a href="https://lichess.org/@/{{ user }}" id="userLink">{{ user }}</a></span>
 				{% if insights['performance_week'] > insights['performance_weekend'] %}
@@ -59,6 +60,9 @@
 			<span class="piece">&#9812;</span>
 			<span class="piece">&#9813;</span>
 			<span class="piece">&#9815;</span>
+		</div>
+		<div class="ackn">
+			<p>JBandeira - 2022 // Data imported using the <span class="result-tag"><a href="https://lichess.org/api">Lichess API</a></span></p>
 		</div>
 	</footer>
 </body>
