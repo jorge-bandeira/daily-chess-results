@@ -122,7 +122,9 @@ def createGamesNumDf(df):
 	    yaxis_zeroline = False,
 	    paper_bgcolor='rgba(0,0,0,0)',
 	    plot_bgcolor='rgba(0,0,0,0)',
-	    font = dict(color = 'white')
+	    font = dict(color = 'white'),
+	    xaxis_fixedrange = True,
+	    yaxis_fixedrange = True
 		)
 	plot_div_n = plotly.io.to_html(heatMap_n_fig, include_plotlyjs=True, full_html=False)
 	return plot_div_n
@@ -150,7 +152,9 @@ def createRateDiffDf(df):
 	    yaxis_zeroline = False,
 	    paper_bgcolor='rgba(0,0,0,0)',
 	    plot_bgcolor='rgba(0,0,0,0)',
-	    font = dict(color = 'white')
+	    font = dict(color = 'white'),
+	    xaxis_fixedrange = True,
+	    yaxis_fixedrange = True
 		)
 	plot_div = plotly.io.to_html(heatMap_fig, include_plotlyjs=True, full_html=False)
 	return plot_div
@@ -178,7 +182,9 @@ def createAvgRateDiff(df):
 	    yaxis_zeroline = False,
 	    paper_bgcolor='rgba(0,0,0,0)',
 	    plot_bgcolor='rgba(0,0,0,0)',
-	    font = dict(color = 'white')
+	    font = dict(color = 'white'),
+	    xaxis_fixedrange = True,
+	    yaxis_fixedrange = True
 		)
 	plot_div = plotly.io.to_html(heatMap_avg_fig, include_plotlyjs=True, full_html=False)
 	return plot_div
@@ -203,7 +209,9 @@ def createScatterDf(df):
 	    yaxis_zeroline = False,
 		paper_bgcolor='rgba(0,0,0,0)',
 	    plot_bgcolor='rgba(0,0,0,0)',
-	    font = dict(color = 'white')
+	    font = dict(color = 'white'),
+	    xaxis_fixedrange = True,
+	    yaxis_fixedrange = True
 		)
 	scatterFig.update_coloraxes(showscale=False)
 	scatter_div = plotly.io.to_html(scatterFig, include_plotlyjs=True, full_html=False)
