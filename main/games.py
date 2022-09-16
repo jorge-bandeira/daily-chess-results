@@ -28,13 +28,12 @@ def getData(user, max, time_control):
 		games = getGames(gdata)
 		df = createDf(games, user)
 		games_count = len(df.index)
-		rating_div = createRateDiffDf(df)
 		num_div = createGamesNumDf(df)
 		rating_div_avg = createAvgRateDiff(df)
 		scatter_div, c = createScatterDf(df)
 		insights = getInsights(df)
 		insights['corr'] = round(c,2)
-		return rating_div, num_div, rating_div_avg, scatter_div, games_count, insights
+		return num_div, rating_div_avg, scatter_div, games_count, insights
 
 #api request
 def createRequest(url, headers, params):
@@ -130,34 +129,34 @@ def createGamesNumDf(df):
 	return plot_div_n
 
 #net rating heatmap
-def createRateDiffDf(df):
-	heatMap_df = df[['day_of_week', 'hour', 'user_rate_diff']]
-	heatMap_df = heatMap_df.groupby(['day_of_week', 'hour'])['user_rate_diff'].sum().reset_index()
-	heatMap_df['day_of_week'] = pd.Categorical(
-		heatMap_df['day_of_week'],
-		categories = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday', 'Sunday'],
-		ordered = True
-		)
-	heatMap_df = heatMap_df.sort_values('day_of_week')
-	x = heatMap_df['hour']
-	y = heatMap_df['day_of_week']
-	z = heatMap_df['user_rate_diff']
-	heatMap_fig = heatmap(x, y, z)
-	heatMap_fig.update_layout(
-		title = 'Net Rating Change',
-	    xaxis_title="Hour of Day",
-	    xaxis_showgrid = False,
-	    yaxis_showgrid = False,
-	    xaxis_zeroline = False,
-	    yaxis_zeroline = False,
-	    paper_bgcolor='rgba(0,0,0,0)',
-	    plot_bgcolor='rgba(0,0,0,0)',
-	    font = dict(color = 'white'),
-	    xaxis_fixedrange = True,
-	    yaxis_fixedrange = True
-		)
-	plot_div = plotly.io.to_html(heatMap_fig, include_plotlyjs=True, full_html=False)
-	return plot_div
+# def createRateDiffDf(df):
+# 	heatMap_df = df[['day_of_week', 'hour', 'user_rate_diff']]
+# 	heatMap_df = heatMap_df.groupby(['day_of_week', 'hour'])['user_rate_diff'].sum().reset_index()
+# 	heatMap_df['day_of_week'] = pd.Categorical(
+# 		heatMap_df['day_of_week'],
+# 		categories = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday', 'Sunday'],
+# 		ordered = True
+# 		)
+# 	heatMap_df = heatMap_df.sort_values('day_of_week')
+# 	x = heatMap_df['hour']
+# 	y = heatMap_df['day_of_week']
+# 	z = heatMap_df['user_rate_diff']
+# 	heatMap_fig = heatmap(x, y, z)
+# 	heatMap_fig.update_layout(
+# 		title = 'Net Rating Change',
+# 	    xaxis_title="Hour of Day",
+# 	    xaxis_showgrid = False,
+# 	    yaxis_showgrid = False,
+# 	    xaxis_zeroline = False,
+# 	    yaxis_zeroline = False,
+# 	    paper_bgcolor='rgba(0,0,0,0)',
+# 	    plot_bgcolor='rgba(0,0,0,0)',
+# 	    font = dict(color = 'white'),
+# 	    xaxis_fixedrange = True,
+# 	    yaxis_fixedrange = True
+# 		)
+# 	plot_div = plotly.io.to_html(heatMap_fig, include_plotlyjs=True, full_html=False)
+# 	return plot_div
 
 #average rating heatmap
 def createAvgRateDiff(df):
