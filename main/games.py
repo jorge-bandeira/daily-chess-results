@@ -125,7 +125,7 @@ def createGamesNumDf(df):
 	    xaxis_fixedrange = True,
 	    yaxis_fixedrange = True
 		)
-	plot_div_n = plotly.io.to_html(heatMap_n_fig, include_plotlyjs=True, full_html=False)
+	plot_div_n = plotly.io.to_html(heatMap_n_fig, include_plotlyjs=True, full_html=False, config={'displayModeBar': False})
 	return plot_div_n
 
 #net rating heatmap
@@ -185,7 +185,7 @@ def createAvgRateDiff(df):
 	    xaxis_fixedrange = True,
 	    yaxis_fixedrange = True
 		)
-	plot_div = plotly.io.to_html(heatMap_avg_fig, include_plotlyjs=True, full_html=False)
+	plot_div = plotly.io.to_html(heatMap_avg_fig, include_plotlyjs=True, full_html=False, config={'displayModeBar': False})
 	return plot_div
 
 #number of games vs rating diff
@@ -213,7 +213,7 @@ def createScatterDf(df):
 	    yaxis_fixedrange = True
 		)
 	scatterFig.update_coloraxes(showscale=False)
-	scatter_div = plotly.io.to_html(scatterFig, include_plotlyjs=True, full_html=False)
+	scatter_div = plotly.io.to_html(scatterFig, include_plotlyjs=True, full_html=False, config={'displayModeBar': False})
 	return scatter_div, correlation
 
 def getInsights(df):
