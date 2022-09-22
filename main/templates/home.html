@@ -43,8 +43,8 @@
 			{% endif %}
 			<div class="number-box">
 				<p>Number of games</p>
-				{{ form.max_games(class="slider", min="0", max="500", step="100", id="gamesSlider", onchange="displayNumber(this.value);")}}
-				<span id="gamesNum">250</span>
+				{{ form.max_games(class="slider", min="0", max="400", step="100", id="gamesSlider", oninput="displayNumber(this.value);")}}
+				<span id="gamesNum">200</span>
 			</div>
 			<div class="run-box">
 				{{ form.submit(id="runButton") }}
