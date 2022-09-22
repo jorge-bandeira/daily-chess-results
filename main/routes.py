@@ -10,8 +10,7 @@ def base():
 @app.route('/')
 @app.route('/home')
 def home():
-	max_games = 2000
-	return render_template('home.html', max = max_games)
+	return render_template('home.html')
 
 @app.route('/results', methods = ['POST'])
 def results():
