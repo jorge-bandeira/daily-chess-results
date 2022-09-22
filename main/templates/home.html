@@ -36,11 +36,6 @@
 					{{ form.bullet(class="control-checkbox") }}
 				</div>
 			</div>
-			{% if noControl %}
-			<div class="control-error">
-				<p id="controlError">Please select at least one time control</p>
-			</div>	
-			{% endif %}
 			<div class="number-box">
 				<p>Number of games</p>
 				{{ form.max_games(class="slider", min="0", max="400", step="100", id="gamesSlider", oninput="displayNumber(this.value);")}}
