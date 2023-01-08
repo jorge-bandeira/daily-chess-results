@@ -12,13 +12,17 @@ headers = {
 }
 
 def getData(user, max, time_control):
-	time_control_string = ','.join(time_control)
+	
 	params = {
 	"max": str(max),
 	"rated": "true",
-	"perfType": time_control_string,
 	"pgnInJson": "false"
 	}
+
+	if len(time_control) != 0:
+		time_control_string = ','.join(time_control)
+		params["perfType"] = time_control_string
+
 	url = api_url + user
 	games_response = createRequest(url, headers, params)
 	if games_response == 'error':
