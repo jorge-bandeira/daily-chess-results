@@ -15,8 +15,10 @@
 		<form action="/results" method="POST" onsubmit="displayLoader()">
 			{{ form.hidden_tag() }}
 			<div class="user-box">
-				<p>Lichess User Name</p>
+				<p>User Name</p>
 				{{ form.user(id="userField") }}
+				{{ form.source }}
+				{{ form.source.label }}
 			</div>
 			<div class="time-control-box">
 				<div class="time-sub-box">

@@ -37,6 +37,7 @@ def getData(user, n_months):
 		response_data = createRequest(url)
 		if response_data != "error":
 			responses.append(response_data)
+	print(responses)
 	
 		
 	

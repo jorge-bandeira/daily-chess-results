@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, IntegerRangeField, BooleanField
+from wtforms import StringField, SubmitField, IntegerRangeField, BooleanField, RadioField
 from wtforms.validators import DataRequired
 
 class MainForm(FlaskForm):
@@ -10,3 +10,4 @@ class MainForm(FlaskForm):
 	blitz = BooleanField()
 	bullet = BooleanField()
 	submit = SubmitField("RUN")
+	source = RadioField("", choices = [(0,'Chess.com'),(1,'Lichess.org')], default = 0, validators = [DataRequired()])

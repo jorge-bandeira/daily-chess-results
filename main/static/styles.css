@@ -32,11 +32,13 @@ body {
 	width: 100%;
 	display: inline-flex;
 	justify-content: center;
+	align-items: center;
 	margin-bottom: 1rem;
 	/*background-color: blue;*/
 }
 
 #userField {
+	height: 50%;
 	color: black;
 	margin-left: 1rem;
 }
