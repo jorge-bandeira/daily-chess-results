@@ -1,6 +1,7 @@
-import requests, json
+import requests, json, datetime
 import dateutil.relativedelta
-from datetime import date
+import pandas as pd
+import numpy as np
 
 #request structure
 chess_api_url = "https://api.chess.com/pub/player/"
@@ -9,7 +10,7 @@ chess_api_url = "https://api.chess.com/pub/player/"
 def defineMonths(n):
 	months = []
 	months_to_consider = n - 1
-	today = date.today()
+	today = datetime.date.today()
 	current_month = today.strftime("%Y/%m")
 	months.append(current_month)
 	i = 1
@@ -38,6 +39,12 @@ def getData(user, n_months):
 		if response_data != "error":
 			games_data = json.loads(response_data)
 			for game in games_data['games']:
+				pgn = game['pgn']
+				start_string = 'ECOUrl "https://www.chess.com/openings/'
+				start = pgn.find(start_string) + len(start_string)
+				end = pgn.find('UTCDate') - 4
+				opening = pgn[start:end]
+				opening = opening.replace('-',' ')
 				game_dict = {
 					'id': game['uuid'],
 					'end_time': game['end_time'],
@@ -49,10 +56,19 @@ def getData(user, n_months):
 					'white_result': game['white']['result'],
 					'black_name': game['black']['username'],
 					'black_rating': game['black']['rating'],
-					'black_result': game['black']['result']
+					'black_result': game['black']['result'],
+					'opening': opening
 				}
 				archive.append(game_dict)
 	# with open("response.txt", "w") as text_file:
 	# 	for r in archive:
 	# 		print(r, file = text_file)
-	return archive
+	# createDf(archive)
+
+def createDf(archive):
+	archive_df = pd.DataFrame(archive)
+	archive_df['end_time'] = pd.to_datetime(archive_df['end_time'], unit='s') #change date from epoch value to yyyymmdd hhmmss
+	archive_df['day_of_week'] = archive_df['end_time'].dt.day_name() 		  #get day of week
+	archive_df['hour'] = archive_df['end_time'].dt.hour 					  #get hour
+	archive_df = archive_df.sort_values(by='end_time', ascending = False)
+	print(archive_df)
