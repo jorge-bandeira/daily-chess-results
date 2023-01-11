@@ -2,6 +2,8 @@ import requests, json, datetime
 import dateutil.relativedelta
 import pandas as pd
 import numpy as np
+import plotly.graph_objects as go
+import plotly.express as px
 
 #request structure
 chess_api_url = "https://api.chess.com/pub/player/"
@@ -63,12 +65,46 @@ def getData(user, n_months):
 	# with open("response.txt", "w") as text_file:
 	# 	for r in archive:
 	# 		print(r, file = text_file)
-	# createDf(archive)
+	createDf(user, archive)
 
-def createDf(archive):
+def createDf(user, archive):
 	archive_df = pd.DataFrame(archive)
 	archive_df['end_time'] = pd.to_datetime(archive_df['end_time'], unit='s') #change date from epoch value to yyyymmdd hhmmss
 	archive_df['day_of_week'] = archive_df['end_time'].dt.day_name() 		  #get day of week
-	archive_df['hour'] = archive_df['end_time'].dt.hour 					  #get hour
+	archive_df['hour'] = archive_df['end_time'].dt.strftime('%H').add(':00')  #get hour
+	archive_df['user_color'] = np.where(archive_df['white_name'] == user, 'white', 'black') #set user color
 	archive_df = archive_df.sort_values(by='end_time', ascending = False)
-	print(archive_df)
+	# archive_df.to_csv('chess_data.csv', encoding = 'utf-8', index = False)
+	quantityDf(archive_df)
+
+def quantityDf(df):
+	df = df.groupby(['day_of_week', 'hour']).size().reset_index(name='n')
+	df['day_of_week'] = pd.Categorical(
+		df['day_of_week'],
+		categories = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday', 'Sunday'],
+		ordered = True
+		)
+	df = df.sort_values('day_of_week')
+	heatmap_quantity = heatmap(df['hour'], df['day_of_week'], df['n'])
+	heatmap_quantity.update_layout(
+		title = 'Daily Chess Games',
+	    xaxis_title="Hour of Day",
+	    xaxis_showgrid = False,
+	    yaxis_showgrid = False,
+	    xaxis_zeroline = False,
+	    yaxis_zeroline = False,
+	    paper_bgcolor='rgba(0,0,0,0)',
+	    plot_bgcolor='rgba(0,0,0,0)',
+	    font = dict(color = 'white'),
+	    xaxis_fixedrange = True,
+	    yaxis_fixedrange = True
+		)
+	plot_div_qty = plotly.io.to_html(heatmap_quantity, include_plotlyjs=True, full_html=False, config={'displayModeBar': False})
+
+def heatmap(x, y, z):
+	x_order = ['06:00','07:00','08:00','09:00','10:00','11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00',
+			'18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00', '01:00', '02:00', '03:00', '04:00', '05:00']
+	heatmap = go.Figure(data=go.Heatmap(x=x, y=y, z=z, colorscale='Viridis', hoverongaps=False))
+	heatmap.update_xaxes(categoryarray = x_order)
+	return heatmap
+
