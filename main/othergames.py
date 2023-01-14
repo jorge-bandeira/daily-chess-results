@@ -1,4 +1,4 @@
-import requests, json, datetime
+import requests, json, datetime, plotly
 import dateutil.relativedelta
 import pandas as pd
 import numpy as np
@@ -65,7 +65,8 @@ def getData(user, n_months):
 	# with open("response.txt", "w") as text_file:
 	# 	for r in archive:
 	# 		print(r, file = text_file)
-	createDf(user, archive)
+	qty_div = createDf(user, archive)
+	return qty_div
 
 def createDf(user, archive):
 	archive_df = pd.DataFrame(archive)
@@ -75,7 +76,8 @@ def createDf(user, archive):
 	archive_df['user_color'] = np.where(archive_df['white_name'] == user, 'white', 'black') #set user color
 	archive_df = archive_df.sort_values(by='end_time', ascending = False)
 	# archive_df.to_csv('chess_data.csv', encoding = 'utf-8', index = False)
-	quantityDf(archive_df)
+	qty_div = quantityDf(archive_df)
+	return qty_div
 
 def quantityDf(df):
 	df = df.groupby(['day_of_week', 'hour']).size().reset_index(name='n')
@@ -99,7 +101,7 @@ def quantityDf(df):
 	    xaxis_fixedrange = True,
 	    yaxis_fixedrange = True
 		)
-	plot_div_qty = plotly.io.to_html(heatmap_quantity, include_plotlyjs=True, full_html=False, config={'displayModeBar': False})
+	return plotly.io.to_html(heatmap_quantity, include_plotlyjs=True, full_html=False, config={'displayModeBar': False})
 
 def heatmap(x, y, z):
 	x_order = ['06:00','07:00','08:00','09:00','10:00','11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00',

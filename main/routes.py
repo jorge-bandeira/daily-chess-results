@@ -1,4 +1,4 @@
-from main import app, games
+from main import app, games, othergames
 from main.forms import MainForm
 from flask import render_template
 
@@ -47,3 +47,20 @@ def results():
 			)
 	else:
 		return render_template('error.html')
+
+@app.route('/report', methods = ['POST'])
+def report():
+	form = MainForm()
+	print(form.errors)
+	user = None
+	if form.validate_on_submit():
+		user = form.user.data
+		months = 6
+		qty_div = othergames.getData(user, months)
+		if qty_div == 'error':
+			return render_template('error.html')
+		else:
+			return render_template('report.html',
+				user = user,
+				qty_div = qty_div
+				)
