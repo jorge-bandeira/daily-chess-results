@@ -55,8 +55,7 @@ def report():
 	user = None
 	if form.validate_on_submit():
 		user = form.user.data
-		months = 2
-		qty_div, qly_div = othergames.getData(user, months)
+		qty_div, qly_div = othergames.getData(user)
 		if qly_div == 'error':
 			return render_template('error.html')
 		else:

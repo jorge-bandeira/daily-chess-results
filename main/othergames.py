@@ -9,18 +9,18 @@ import plotly.express as px
 chess_api_url = "https://api.chess.com/pub/player/"
 
 #get a string for every month to consider
-def defineMonths(n):
-	months = []
-	months_to_consider = n - 1
-	today = datetime.date.today()
-	current_month = today.strftime("%Y/%m")
-	months.append(current_month)
-	i = 1
-	while i <= months_to_consider:
-		m = today - dateutil.relativedelta.relativedelta(months = i)
-		months.append(m.strftime("%Y/%m"))
-		i += 1
-	return months
+# def defineMonths(n):
+# 	months = []
+# 	months_to_consider = n - 1
+# 	today = datetime.date.today()
+# 	current_month = today.strftime("%Y/%m")
+# 	months.append(current_month)
+# 	i = 1
+# 	while i <= months_to_consider:
+# 		m = today - dateutil.relativedelta.relativedelta(months = i)
+# 		months.append(m.strftime("%Y/%m"))
+# 		i += 1
+# 	return months
 
 #make API request
 def createRequest(url):
@@ -32,12 +32,17 @@ def createRequest(url):
 		response = request.text
 		return response
 
-def getData(user, n_months):
-	months = defineMonths(n_months)
-	archive = []
-	for m in months:
-		url = chess_api_url + user + "/games/" + m[0:4] + "/" + m[5:7]
-		response_data = createRequest(url)
+def getArchives(user):
+	url = chess_api_url + user + '/games/archives'
+	archives_response = createRequest(url)
+	archives_list = json.loads(archives_response)['archives']
+	return archives_list
+
+def getData(user):
+	archives = getArchives(user)
+	game_list = []
+	for a in archives:
+		response_data = createRequest(a)
 		if response_data != "error":
 			games_data = json.loads(response_data)
 			for game in games_data['games']:
@@ -61,11 +66,11 @@ def getData(user, n_months):
 					'black_result': game['black']['result'],
 					'opening': opening
 				}
-				archive.append(game_dict)
+				game_list.append(game_dict)
 	# with open("response.txt", "w") as text_file:
 	# 	for r in archive:
 	# 		print(r, file = text_file)
-	qty_div, qly_div = createDf(user, archive)
+	qty_div, qly_div = createDf(user, game_list)
 	return qty_div, qly_div
 
 def createDf(user, archive):
@@ -138,5 +143,3 @@ def heatmap(x, y, z):
 	heatmap = go.Figure(data=go.Heatmap(x=x, y=y, z=z, colorscale='Viridis', hoverongaps=False))
 	heatmap.update_xaxes(categoryarray = x_order)
 	return heatmap
-
-
