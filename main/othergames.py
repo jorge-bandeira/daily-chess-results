@@ -38,7 +38,7 @@ def getArchives(user):
 	archives_list = json.loads(archives_response)['archives']
 	return archives_list
 
-def getData(user, max_games):
+def getData(user, max_games, time_class_list):
 	archives = getArchives(user)
 	game_list = []
 	games_count = 0
@@ -53,29 +53,32 @@ def getData(user, max_games):
 				if games_count == max_games:
 					break
 				try:
-					pgn = game['pgn']
-					start_string = 'ECOUrl "https://www.chess.com/openings/'
-					start = pgn.find(start_string) + len(start_string)
-					end = pgn.find('UTCDate') - 4
-					opening = pgn[start:end]
-					opening = opening.replace('-',' ')
-					game_dict = {
-						'id': game['uuid'],
-						'end_time': game['end_time'],
-						'rules': game['rules'],
-						'time_control': game['time_control'],
-						'rated': game['rated'],
-						'white_name': game['white']['username'],
-						'white_rating': game['white']['rating'],
-						'white_result': game['white']['result'],
-						'black_name': game['black']['username'],
-						'black_rating': game['black']['rating'],
-						'black_result': game['black']['result'],
-						'opening': opening
-					}
-					game_list.append(game_dict)
-					games_count += 1
-					print(games_count)
+					if game['time_class'] in time_class_list:			
+						pgn = game['pgn']
+						start_string = 'ECOUrl "https://www.chess.com/openings/'
+						start = pgn.find(start_string) + len(start_string)
+						end = pgn.find('UTCDate') - 4
+						opening = pgn[start:end]
+						opening = opening.replace('-',' ')
+						game_dict = {
+							'id': game['uuid'],
+							'end_time': game['end_time'],
+							'rules': game['rules'],
+							'time_class': game['time_class'],
+							'rated': game['rated'],
+							'white_name': game['white']['username'],
+							'white_rating': game['white']['rating'],
+							'white_result': game['white']['result'],
+							'black_name': game['black']['username'],
+							'black_rating': game['black']['rating'],
+							'black_result': game['black']['result'],
+							'opening': opening
+						}
+						game_list.append(game_dict)
+						games_count += 1
+						print(games_count)
+					else:
+						continue
 				except:
 					error_count += 1
 					print(error_count)

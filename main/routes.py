@@ -56,8 +56,14 @@ def report():
 	if form.validate_on_submit():
 		user = form.user.data
 		max_games = form.max_games.data
-		print(max_games)
-		qty_div, qly_div, corr_div, count = othergames.getData(user, max_games)
+		time_class_list = []
+		if form.rapid.data:
+			time_class_list.append('rapid')
+		if form.blitz.data:
+			time_class_list.append('blitz')
+		if form.bullet.data:
+			time_class_list.append('bullet')
+		qty_div, qly_div, corr_div, count = othergames.getData(user, max_games, time_class_list)
 		if qly_div == 'error':
 			return render_template('error.html')
 		else:
