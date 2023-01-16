@@ -38,14 +38,19 @@ def getArchives(user):
 	archives_list = json.loads(archives_response)['archives']
 	return archives_list
 
-def getData(user):
+def getData(user, max_games):
 	archives = getArchives(user)
 	game_list = []
+	games_count = 0	
 	for a in archives:
+		if games_count == max_games:
+			break
 		response_data = createRequest(a)
 		if response_data != "error":
 			games_data = json.loads(response_data)
 			for game in games_data['games']:
+				if games_count == max_games:
+					break
 				pgn = game['pgn']
 				start_string = 'ECOUrl "https://www.chess.com/openings/'
 				start = pgn.find(start_string) + len(start_string)
@@ -67,11 +72,13 @@ def getData(user):
 					'opening': opening
 				}
 				game_list.append(game_dict)
+				games_count += 1
+				print(games_count)
 	# with open("response.txt", "w") as text_file:
 	# 	for r in archive:
 	# 		print(r, file = text_file)
 	qty_div, qly_div = createDf(user, game_list)
-	return qty_div, qly_div
+	return qty_div, qly_div, games_count
 
 def createDf(user, archive):
 	archive_df = pd.DataFrame(archive)

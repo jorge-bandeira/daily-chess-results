@@ -55,12 +55,15 @@ def report():
 	user = None
 	if form.validate_on_submit():
 		user = form.user.data
-		qty_div, qly_div = othergames.getData(user)
+		max_games = form.max_games.data
+		print(max_games)
+		qty_div, qly_div, count = othergames.getData(user, max_games)
 		if qly_div == 'error':
 			return render_template('error.html')
 		else:
 			return render_template('report.html',
 				user = user,
 				qty_div = qty_div,
-				qly_div = qly_div
+				qly_div = qly_div,
+				count = count
 				)

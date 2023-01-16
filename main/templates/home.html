@@ -40,8 +40,8 @@
 			</div>
 			<div class="number-box">
 				<p>Number of games</p>
-				{{ form.max_games(class="slider", min="0", max="400", step="100", id="gamesSlider", oninput="displayNumber(this.value);")}}
-				<span id="gamesNum">200</span>
+				{{ form.max_games(class="slider", min="0", max="5000", step="100", id="gamesSlider", oninput="displayNumber(this.value);")}}
+				<span id="gamesNum">2500</span>
 			</div>
 			<div class="run-box">
 				{{ form.submit(id="runButton") }}
@@ -62,7 +62,7 @@
 	</div>
 	<footer>
 		<div class="ackn-home">
-			<p>JBandeira - 2022 // Data imported using the <span class="result-tag"><a href="https://lichess.org/api" target="_blank">Lichess API</a></span></p>
+			<p>JBandeira - 2022 // Data imported using the <span class="result-tag"><a href="https://lichess.org/api" target="_blank">Lichess API</a></span> and the <span class="result-tag"><a href="https://www.chess.com/news/view/published-data-api">Chess.com API</a></span></p>
 		</div>
 	</footer>
 </body>
