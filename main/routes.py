@@ -57,7 +57,7 @@ def report():
 		user = form.user.data
 		max_games = form.max_games.data
 		print(max_games)
-		qty_div, qly_div, count = othergames.getData(user, max_games)
+		qty_div, qly_div, corr_div, count = othergames.getData(user, max_games)
 		if qly_div == 'error':
 			return render_template('error.html')
 		else:
@@ -65,5 +65,6 @@ def report():
 				user = user,
 				qty_div = qty_div,
 				qly_div = qly_div,
+				corr_div = corr_div,
 				count = count
 				)

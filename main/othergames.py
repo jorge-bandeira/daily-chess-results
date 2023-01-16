@@ -83,8 +83,8 @@ def getData(user, max_games):
 	# with open("response.txt", "w") as text_file:
 	# 	for r in archive:
 	# 		print(r, file = text_file)
-	qty_div, qly_div = createDf(user, game_list)
-	return qty_div, qly_div, games_count
+	qty_div, qly_div, corr_div = createDf(user, game_list)
+	return qty_div, qly_div, corr_div, games_count
 
 def createDf(user, archive):
 	archive_df = pd.DataFrame(archive)
@@ -97,7 +97,8 @@ def createDf(user, archive):
 	# archive_df.to_csv('chess_data.csv', encoding = 'utf-8', index = False)
 	qty_div = quantityDf(archive_df)
 	qly_div = qualityDf(archive_df)
-	return qty_div, qly_div
+	corr_div = correlationDf(archive_df)
+	return qty_div, qly_div, corr_div
 
 def quantityDf(df):
 	df = df.groupby(['day_of_week', 'hour']).size().reset_index(name='n')
@@ -156,3 +157,28 @@ def heatmap(x, y, z):
 	heatmap = go.Figure(data=go.Heatmap(x=x, y=y, z=z, colorscale='Viridis', hoverongaps=False))
 	heatmap.update_xaxes(categoryarray = x_order)
 	return heatmap
+
+def correlationDf(df):
+	df['date'] = df['end_time'].dt.date
+	df = df.groupby(['date'], as_index = False).agg({'user_result':[('n','count'),('wins', lambda x:len(x[x == 'win']))]})
+	df.columns = df.columns.droplevel()	
+	df.columns = ['date', 'n_games', 'n_wins']
+	df['win_rate'] = round(df['n_wins'] / df['n_games'],2)
+	corrFig = px.scatter(df, x='n_games', y='win_rate', color='win_rate', color_continuous_scale=px.colors.sequential.Viridis, trendline='ols')
+	corrFig.update_layout(
+		title = 'Win Rate vs Games Played',
+		xaxis_title = 'Number of games',
+		yaxis_title = 'Win rate',
+		xaxis_showgrid = False,
+	    yaxis_showgrid = False,
+	    xaxis_zeroline = False,
+	    yaxis_zeroline = False,
+		paper_bgcolor='rgba(0,0,0,0)',
+	    plot_bgcolor='rgba(0,0,0,0)',
+	    font = dict(color = 'white'),
+	    xaxis_fixedrange = True,
+	    yaxis_fixedrange = True
+		)
+	corrFig.update_coloraxes(showscale=False)
+	corr_div = plotly.io.to_html(corrFig, include_plotlyjs=True, full_html=False, config={'displayModeBar': False})
+	return corr_div
