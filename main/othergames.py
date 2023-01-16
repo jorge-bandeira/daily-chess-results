@@ -41,7 +41,8 @@ def getArchives(user):
 def getData(user, max_games):
 	archives = getArchives(user)
 	game_list = []
-	games_count = 0	
+	games_count = 0
+	error_count = 0	
 	for a in archives:
 		if games_count == max_games:
 			break
@@ -51,29 +52,34 @@ def getData(user, max_games):
 			for game in games_data['games']:
 				if games_count == max_games:
 					break
-				pgn = game['pgn']
-				start_string = 'ECOUrl "https://www.chess.com/openings/'
-				start = pgn.find(start_string) + len(start_string)
-				end = pgn.find('UTCDate') - 4
-				opening = pgn[start:end]
-				opening = opening.replace('-',' ')
-				game_dict = {
-					'id': game['uuid'],
-					'end_time': game['end_time'],
-					'rules': game['rules'],
-					'time_control': game['time_control'],
-					'rated': game['rated'],
-					'white_name': game['white']['username'],
-					'white_rating': game['white']['rating'],
-					'white_result': game['white']['result'],
-					'black_name': game['black']['username'],
-					'black_rating': game['black']['rating'],
-					'black_result': game['black']['result'],
-					'opening': opening
-				}
-				game_list.append(game_dict)
-				games_count += 1
-				print(games_count)
+				try:
+					pgn = game['pgn']
+					start_string = 'ECOUrl "https://www.chess.com/openings/'
+					start = pgn.find(start_string) + len(start_string)
+					end = pgn.find('UTCDate') - 4
+					opening = pgn[start:end]
+					opening = opening.replace('-',' ')
+					game_dict = {
+						'id': game['uuid'],
+						'end_time': game['end_time'],
+						'rules': game['rules'],
+						'time_control': game['time_control'],
+						'rated': game['rated'],
+						'white_name': game['white']['username'],
+						'white_rating': game['white']['rating'],
+						'white_result': game['white']['result'],
+						'black_name': game['black']['username'],
+						'black_rating': game['black']['rating'],
+						'black_result': game['black']['result'],
+						'opening': opening
+					}
+					game_list.append(game_dict)
+					games_count += 1
+					print(games_count)
+				except:
+					error_count += 1
+					print(error_count)
+					continue
 	# with open("response.txt", "w") as text_file:
 	# 	for r in archive:
 	# 		print(r, file = text_file)
