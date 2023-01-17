@@ -39,6 +39,10 @@ def getArchives(user):
 	return archives_list
 
 def getData(user, max_games, time_class_list):
+	if len(time_class_list) == 0:
+		time_class_list.append('rapid')
+		time_class_list.append('blitz')
+		time_class_list.append('bullet')
 	archives = getArchives(user)
 	game_list = []
 	games_count = 0
