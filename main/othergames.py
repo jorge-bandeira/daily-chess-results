@@ -8,6 +8,9 @@ import plotly.express as px
 #request structure
 chess_api_url = "https://api.chess.com/pub/player/"
 
+draw_results = ['agreed', 'repetition', 'stalemate', 'insuficient', '50move', 'timevsinsuficient']
+loss_results = ['checkmated', 'resigned', 'lose', 'abandoned']
+
 #get a string for every month to consider
 # def defineMonths(n):
 # 	months = []
@@ -44,6 +47,7 @@ def getData(user, max_games, time_class_list):
 		time_class_list.append('blitz')
 		time_class_list.append('bullet')
 	archives = getArchives(user)
+	archives = archives[::-1] #Reverse list
 	game_list = []
 	games_count = 0
 	error_count = 0	
@@ -105,6 +109,7 @@ def createDf(user, archive):
 	qty_div = quantityDf(archive_df)
 	qly_div = qualityDf(archive_df)
 	corr_div = correlationDf(archive_df)
+	print(whiteOpeningsDf(archive_df))
 	return qty_div, qly_div, corr_div
 
 def quantityDf(df):
@@ -189,3 +194,18 @@ def correlationDf(df):
 	corrFig.update_coloraxes(showscale=False)
 	corr_div = plotly.io.to_html(corrFig, include_plotlyjs=True, full_html=False, config={'displayModeBar': False})
 	return corr_div
+
+def whiteOpeningsDf(df):
+	color_filter = df['user_color'] == 'white'
+	df = df[color_filter]
+	df['opening'] = df['opening'].apply(lambda x: ' '.join(x.split()[:2]))
+	df = df.groupby(['opening']).agg({'user_result':[
+		('n', 'count'),
+		('wins', lambda x:len(x[x=='win'])),
+		('draws', lambda x:len(x[x.isin(draw_results)])),
+		('losses', lambda x:len(x[x.isin(loss_results)]))
+		]}).sort_values(('user_result','n'), ascending=False)
+	df['win_rate'] = round(df['user_result']['wins'] / df['user_result']['n'] * 100, 2)
+	df['draw_rate'] = round(df['user_result']['draws'] / df['user_result']['n'] * 100, 2)
+	df['lose_rate'] = round(df['user_result']['losses'] / df['user_result']['n'] * 100, 2)
+	return df
