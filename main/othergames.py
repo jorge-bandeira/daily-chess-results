@@ -61,7 +61,7 @@ def getData(user, max_games, time_class_list):
 				if games_count == max_games:
 					break
 				try:
-					if game['time_class'] in time_class_list:			
+					if game['time_class'] in time_class_list and game['rated'] and game['rules'] == 'chess':			
 						pgn = game['pgn']
 						start_string = 'ECOUrl "https://www.chess.com/openings/'
 						start = pgn.find(start_string) + len(start_string)
