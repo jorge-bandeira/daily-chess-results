@@ -94,8 +94,8 @@ def getData(user, max_games, time_class_list):
 	# with open("response.txt", "w") as text_file:
 	# 	for r in archive:
 	# 		print(r, file = text_file)
-	qty_div, qly_div, corr_div = createDf(user, game_list)
-	return qty_div, qly_div, corr_div, games_count
+	qty_div, qly_div, corr_div, white_op_div, black_op_div = createDf(user, game_list)
+	return qty_div, qly_div, corr_div, white_op_div, black_op_div, games_count
 
 def createDf(user, archive):
 	archive_df = pd.DataFrame(archive)
@@ -109,8 +109,9 @@ def createDf(user, archive):
 	qty_div = quantityDf(archive_df)
 	qly_div = qualityDf(archive_df)
 	corr_div = correlationDf(archive_df)
-	print(whiteOpeningsDf(archive_df))
-	return qty_div, qly_div, corr_div
+	white_op_div = whiteOpeningsDf(archive_df)
+	black_op_div = blackOpeningsDf(archive_df)
+	return qty_div, qly_div, corr_div, white_op_div, black_op_div
 
 def quantityDf(df):
 	df = df.groupby(['day_of_week', 'hour']).size().reset_index(name='n')
@@ -205,7 +206,66 @@ def whiteOpeningsDf(df):
 		('draws', lambda x:len(x[x.isin(draw_results)])),
 		('losses', lambda x:len(x[x.isin(loss_results)]))
 		]}).sort_values(('user_result','n'), ascending=False)
-	df['win_rate'] = round(df['user_result']['wins'] / df['user_result']['n'] * 100, 2)
-	df['draw_rate'] = round(df['user_result']['draws'] / df['user_result']['n'] * 100, 2)
-	df['lose_rate'] = round(df['user_result']['losses'] / df['user_result']['n'] * 100, 2)
-	return df
+	# df['win_rate'] = round(df['user_result']['wins'] / df['user_result']['n'] * 100, 2)
+	# df['draw_rate'] = round(df['user_result']['draws'] / df['user_result']['n'] * 100, 2)
+	# df['lose_rate'] = round(df['user_result']['losses'] / df['user_result']['n'] * 100, 2)
+	df = df.reset_index().loc[0:9]
+	df.drop(('user_result','n'), axis = 1, inplace = True)
+	df.columns = df.columns.droplevel()	
+	df.columns = ['opening', 'wins', 'draws', 'losses']
+	df = pd.melt(df, id_vars = 'opening', var_name = 'result', value_name = 'count')
+	
+	fig = px.bar(df, x = df['opening'], y = df['count'], color = df['result'])
+	fig.update_layout(
+		title = 'Top 10 openings played with white',
+		xaxis_title = 'Opening',
+		yaxis_title = '',
+		xaxis_showgrid = False,
+	    yaxis_showgrid = False,
+	    xaxis_zeroline = False,
+	    yaxis_zeroline = False,
+		paper_bgcolor='rgba(0,0,0,0)',
+	    plot_bgcolor='rgba(0,0,0,0)',
+	    font = dict(color = 'white'),
+	    xaxis_fixedrange = True,
+	    yaxis_fixedrange = True
+		)
+	div = plotly.io.to_html(fig, include_plotlyjs=True, full_html=False, config={'displayModeBar': False})
+	return div
+
+def blackOpeningsDf(df):
+	color_filter = df['user_color'] == 'black'
+	df = df[color_filter]
+	df['opening'] = df['opening'].apply(lambda x: ' '.join(x.split()[:2]))
+	df = df.groupby(['opening']).agg({'user_result':[
+		('n', 'count'),
+		('wins', lambda x:len(x[x=='win'])),
+		('draws', lambda x:len(x[x.isin(draw_results)])),
+		('losses', lambda x:len(x[x.isin(loss_results)]))
+		]}).sort_values(('user_result','n'), ascending=False)
+	# df['win_rate'] = round(df['user_result']['wins'] / df['user_result']['n'] * 100, 2)
+	# df['draw_rate'] = round(df['user_result']['draws'] / df['user_result']['n'] * 100, 2)
+	# df['lose_rate'] = round(df['user_result']['losses'] / df['user_result']['n'] * 100, 2)
+	df = df.reset_index().loc[0:9]
+	df.drop(('user_result','n'), axis = 1, inplace = True)
+	df.columns = df.columns.droplevel()	
+	df.columns = ['opening', 'wins', 'draws', 'losses']
+	df = pd.melt(df, id_vars = 'opening', var_name = 'result', value_name = 'count')
+	
+	fig = px.bar(df, x = df['opening'], y = df['count'], color = df['result'])
+	fig.update_layout(
+		title = 'Top 10 openings played with black',
+		xaxis_title = 'Opening',
+		yaxis_title = '',
+		xaxis_showgrid = False,
+	    yaxis_showgrid = False,
+	    xaxis_zeroline = False,
+	    yaxis_zeroline = False,
+		paper_bgcolor='rgba(0,0,0,0)',
+	    plot_bgcolor='rgba(0,0,0,0)',
+	    font = dict(color = 'white'),
+	    xaxis_fixedrange = True,
+	    yaxis_fixedrange = True
+		)
+	div = plotly.io.to_html(fig, include_plotlyjs=True, full_html=False, config={'displayModeBar': False})
+	return div
