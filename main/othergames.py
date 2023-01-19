@@ -177,7 +177,7 @@ def correlationDf(df):
 	df.columns = df.columns.droplevel()	
 	df.columns = ['date', 'n_games', 'n_wins']
 	df['win_rate'] = round(df['n_wins'] / df['n_games'],2)
-	corrFig = px.scatter(df, x='n_games', y='win_rate', color='win_rate', color_continuous_scale=px.colors.sequential.Viridis, trendline='ols')
+	corrFig = px.scatter(df, x='n_games', y='win_rate', color='win_rate', size='n_games', color_continuous_scale=px.colors.sequential.Viridis, trendline='ols')
 	corrFig.update_layout(
 		title = 'Win Rate vs Games Played',
 		xaxis_title = 'Number of games',
