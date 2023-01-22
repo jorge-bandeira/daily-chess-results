@@ -9,5 +9,5 @@ class MainForm(FlaskForm):
 	rapid = BooleanField()
 	blitz = BooleanField()
 	bullet = BooleanField()
-	submit = SubmitField("RUN")
+	submit = SubmitField("Get Insights!")
 	source = RadioField("", choices = [(0,'Chess.com'),(1,'Lichess.org')], default = 0, validators = [DataRequired()])

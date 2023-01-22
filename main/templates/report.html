@@ -26,6 +26,19 @@
 		<div class="plot-box">
 			{{ qly_div | safe }}
 		</div>
+		<div class="insight-box">
+			<p>
+				<span class="result-tag"><a href="https://lichess.org/@/{{ user }}" id="userLink">{{ user }}</a></span>
+				{% if insights['week_performance'] > insights['weekend_performance'] %}
+				performs better on week days with an average <span class="result-tag">{{ insights['week_performance'] }}</span>  win rate vs <span class="result-tag">{{ insights['weekend_performance'] }}</span> on weekends.
+				{% else %}
+				performs better on weekends with an average <span class="result-tag">{{ insights['weekend_performance'] }}</span>  win rate vs <span class="result-tag">{{ insights['week_performance'] }}</span> on week days.
+				{% endif %}
+			</p>
+			<p>Most games were played on <span class="result-tag">{{ insights['max_count'] }}s</span> and the best performance was achieved on
+				<span class="result-tag">{{ insights['best_time'] }}s</span>. The worst results were on <span class="result-tag">{{ insights['worst_time'] }}s</span>.
+			</p>
+		</div>
 		<div class="plot-box">
 			{{ corr_div | safe }}
 		</div>

@@ -63,7 +63,7 @@ def report():
 			time_class_list.append('blitz')
 		if form.bullet.data:
 			time_class_list.append('bullet')
-		qty_div, qly_div, corr_div, white_op_div, black_op_div, count = othergames.getData(user, max_games, time_class_list)
+		qty_div, qly_div, corr_div, white_op_div, black_op_div, count, insights = othergames.getData(user, max_games, time_class_list)
 		if qly_div == 'error':
 			return render_template('error.html')
 		else:
@@ -74,5 +74,6 @@ def report():
 				corr_div = corr_div,
 				white_op_div = white_op_div,
 				black_op_div = black_op_div,
-				count = count
+				count = count,
+				insights = insights
 				)

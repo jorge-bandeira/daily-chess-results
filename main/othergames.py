@@ -1,4 +1,4 @@
-import requests, json, datetime, plotly
+import requests, json, datetime, plotly, re
 import dateutil.relativedelta
 import pandas as pd
 import numpy as np
@@ -94,24 +94,39 @@ def getData(user, max_games, time_class_list):
 	# with open("response.txt", "w") as text_file:
 	# 	for r in archive:
 	# 		print(r, file = text_file)
-	qty_div, qly_div, corr_div, white_op_div, black_op_div = createDf(user, game_list)
-	return qty_div, qly_div, corr_div, white_op_div, black_op_div, games_count
+	qty_div, qly_div, corr_div, white_op_div, black_op_div, insights = createDf(user, game_list)
+	return qty_div, qly_div, corr_div, white_op_div, black_op_div, games_count, insights
 
 def createDf(user, archive):
 	archive_df = pd.DataFrame(archive)
 	archive_df['end_time'] = pd.to_datetime(archive_df['end_time'], unit='s') #change date from epoch value to yyyymmdd hhmmss
 	archive_df['day_of_week'] = archive_df['end_time'].dt.day_name() 		  #get day of week
-	archive_df['hour'] = archive_df['end_time'].dt.strftime('%H').add(':00')  #get hour
+	archive_df['hour'] = archive_df['end_time'].dt.hour  #get hour
+
+	#add morning 6 - 12 / afternoon 12 - 20 / night 20 - 5
+	conditions = [
+		(archive_df['hour'] > 5) & (archive_df['hour'] <= 12),
+		(archive_df['hour'] > 12) & (archive_df['hour'] <= 20),
+		(archive_df['hour'] > 20) | (archive_df['hour'] <= 5)
+	]
+	choices = ['morning', 'afternoon', 'night']
+
+	archive_df['time_of_day'] = np.select(conditions, choices, default="error")
+
+	archive_df['hour'] = archive_df['end_time'].dt.strftime('%H').add(':00')
+
 	archive_df['user_color'] = np.where(archive_df['white_name'] == user, 'white', 'black') #set user color
 	archive_df['user_result'] = np.where(archive_df['user_color'] == 'white', archive_df['white_result'], archive_df['black_result'])
 	archive_df = archive_df.sort_values(by='end_time', ascending = False)
 	# archive_df.to_csv('chess_data.csv', encoding = 'utf-8', index = False)
+	# archive_df.to_csv('data.csv')
 	qty_div = quantityDf(archive_df)
 	qly_div = qualityDf(archive_df)
 	corr_div = correlationDf(archive_df)
 	white_op_div = whiteOpeningsDf(archive_df)
 	black_op_div = blackOpeningsDf(archive_df)
-	return qty_div, qly_div, corr_div, white_op_div, black_op_div
+	insights = getInsights(archive_df)
+	return qty_div, qly_div, corr_div, white_op_div, black_op_div, insights
 
 def quantityDf(df):
 	df = df.groupby(['day_of_week', 'hour']).size().reset_index(name='n')
@@ -173,15 +188,16 @@ def heatmap(x, y, z):
 
 def correlationDf(df):
 	df['date'] = df['end_time'].dt.date
-	df = df.groupby(['date'], as_index = False).agg({'user_result':[('n','count'),('wins', lambda x:len(x[x == 'win']))]})
+	df = df.groupby(['date', 'time_class'], as_index = False).agg({'user_result':[('n','count'),('wins', lambda x:len(x[x == 'win']))]})
 	df.columns = df.columns.droplevel()	
-	df.columns = ['date', 'n_games', 'n_wins']
+	df.columns = ['date', 'time_class', 'n_games', 'n_wins']
 	df['win_rate'] = round(df['n_wins'] / df['n_games'],2)
-	corrFig = px.scatter(df, x='n_games', y='win_rate', color='win_rate', size='n_games', color_continuous_scale=px.colors.sequential.Viridis, trendline='ols')
+	corrFig = px.scatter(df, x='date', y='win_rate', color='time_class', size='n_games', color_continuous_scale=px.colors.sequential.Viridis)
 	corrFig.update_layout(
-		title = 'Win Rate vs Games Played',
-		xaxis_title = 'Number of games',
+		title = 'Win rate and games played by date and time control',
+		xaxis_title = 'Date',
 		yaxis_title = 'Win rate',
+		legend_title = '',
 		xaxis_showgrid = False,
 	    yaxis_showgrid = False,
 	    xaxis_zeroline = False,
@@ -220,6 +236,7 @@ def whiteOpeningsDf(df):
 		title = 'Top 10 openings played with white',
 		xaxis_title = 'Opening',
 		yaxis_title = '',
+		legend_title = '',
 		xaxis_showgrid = False,
 	    yaxis_showgrid = False,
 	    xaxis_zeroline = False,
@@ -257,6 +274,7 @@ def blackOpeningsDf(df):
 		title = 'Top 10 openings played with black',
 		xaxis_title = 'Opening',
 		yaxis_title = '',
+		legend_title = '',
 		xaxis_showgrid = False,
 	    yaxis_showgrid = False,
 	    xaxis_zeroline = False,
@@ -269,3 +287,42 @@ def blackOpeningsDf(df):
 		)
 	div = plotly.io.to_html(fig, include_plotlyjs=True, full_html=False, config={'displayModeBar': False})
 	return div
+
+def getInsights(df):
+	weekend_count = df[(df.day_of_week == "Saturday") | (df.day_of_week == "Sunday")].count()["id"]
+	weekend_count_wins = df[(df.user_result == "win")][(df.day_of_week == "Saturday") | (df.day_of_week == "Sunday")].count()["id"]
+	weekend_performance = round(weekend_count_wins / weekend_count, 2)
+
+	week_count = df[(df.day_of_week != "Saturday") & (df.day_of_week != "Sunday")].count()["id"]
+	week_count_wins = df[(df.user_result == "win")][(df.day_of_week != "Saturday") | (df.day_of_week != "Sunday")].count()["id"]
+	week_performance = round(week_count_wins / week_count, 2)
+
+	max_count, min_count = getMaxGames(df)
+	best_time, worst_time = getBestGames(df)	
+
+	insights = {
+			'max_count':max_count,
+			'min_count':min_count,
+			'best_time':best_time,
+			'worst_time':worst_time,
+			'week_performance':week_performance,
+			'weekend_performance':weekend_performance
+	}
+
+	return insights
+
+def getMaxGames(df):
+	df = df.groupby(['day_of_week', 'time_of_day']).count()
+	max_count = ' '.join(df.idxmax()['id']).lower()
+	min_count = ' '.join(df.idxmin()['id']).lower()
+	return max_count, min_count
+
+def getBestGames(df):
+	df = df[['day_of_week', 'time_of_day', 'user_result']]
+	df = df.groupby(['day_of_week', 'time_of_day']).agg({'user_result': [('n', 'count'),('wins', lambda x:len(x[x=='win']))]})
+	df['win_rate'] = round(df['user_result']['wins'] / df['user_result']['n'] * 100, 2)
+	best_time = ' '.join(map(str, df.idxmax()['win_rate']))
+	best_time = re.sub(r'[^\w\s]','',best_time).lower()
+	worst_time = ' '.join(map(str, df.idxmin()['win_rate']))
+	worst_time = re.sub(r'[^\w\s]','',worst_time).lower()
+	return best_time, worst_time
