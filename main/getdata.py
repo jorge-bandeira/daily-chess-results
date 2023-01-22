@@ -17,7 +17,7 @@ def createRequest(url):
 	request = requests.get(url)
 	if request.status_code == 404:
 		print("404 error")
-		return 'error'
+		return 404
 	else:
 		response = request.text
 		return response
@@ -26,6 +26,8 @@ def createRequest(url):
 def getArchives(user):
 	url = chess_api_url + user + '/games/archives'
 	archives_response = createRequest(url)
+	if archives_response == 404:
+		return 404
 	archives_list = json.loads(archives_response)['archives']
 	return archives_list
 
@@ -39,6 +41,8 @@ def getData(user, max_games, time_class_list):
 		time_class_list.append('bullet')
 	
 	archives = getArchives(user)
+	if archives == 404:
+		return 404
 	archives = archives[::-1] #Reverse list
 	game_list = []
 	games_count = 0
@@ -88,7 +92,16 @@ def getData(user, max_games, time_class_list):
 					continue
 
 	qty_div, qly_div, corr_div, white_op_div, black_op_div, insights = createDf(user, game_list)
-	return qty_div, qly_div, corr_div, white_op_div, black_op_div, games_count, insights
+	data_response = {
+		'count': games_count,
+		'qty_div':qty_div,
+		'qly_div':qly_div,
+		'corr_div':corr_div,
+		'white_op_div':white_op_div,
+		'black_op_div':black_op_div,
+		'insights':insights
+	}
+	return data_response
 
 def createDf(user, archive):
 	archive_df = pd.DataFrame(archive)
