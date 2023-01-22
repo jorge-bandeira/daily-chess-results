@@ -219,9 +219,7 @@ def whiteOpeningsDf(df):
 		('draws', lambda x:len(x[x.isin(draw_results)])),
 		('losses', lambda x:len(x[x.isin(loss_results)]))
 		]}).sort_values(('user_result','n'), ascending=False)
-	# df['win_rate'] = round(df['user_result']['wins'] / df['user_result']['n'] * 100, 2)
-	# df['draw_rate'] = round(df['user_result']['draws'] / df['user_result']['n'] * 100, 2)
-	# df['lose_rate'] = round(df['user_result']['losses'] / df['user_result']['n'] * 100, 2)
+
 	df = df.reset_index().loc[0:9]
 	df.drop(('user_result','n'), axis = 1, inplace = True)
 	df.columns = df.columns.droplevel()	
@@ -258,9 +256,7 @@ def blackOpeningsDf(df):
 		('draws', lambda x:len(x[x.isin(draw_results)])),
 		('losses', lambda x:len(x[x.isin(loss_results)]))
 		]}).sort_values(('user_result','n'), ascending=False)
-	# df['win_rate'] = round(df['user_result']['wins'] / df['user_result']['n'] * 100, 2)
-	# df['draw_rate'] = round(df['user_result']['draws'] / df['user_result']['n'] * 100, 2)
-	# df['lose_rate'] = round(df['user_result']['losses'] / df['user_result']['n'] * 100, 2)
+
 	df = df.reset_index().loc[0:9]
 	df.drop(('user_result','n'), axis = 1, inplace = True)
 	df.columns = df.columns.droplevel()	
