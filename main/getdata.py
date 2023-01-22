@@ -8,22 +8,9 @@ import plotly.express as px
 #request structure
 chess_api_url = "https://api.chess.com/pub/player/"
 
+#map meaning of results returned from the API
 draw_results = ['agreed', 'repetition', 'stalemate', 'insuficient', '50move', 'timevsinsuficient']
 loss_results = ['checkmated', 'resigned', 'lose', 'abandoned']
-
-#get a string for every month to consider
-# def defineMonths(n):
-# 	months = []
-# 	months_to_consider = n - 1
-# 	today = datetime.date.today()
-# 	current_month = today.strftime("%Y/%m")
-# 	months.append(current_month)
-# 	i = 1
-# 	while i <= months_to_consider:
-# 		m = today - dateutil.relativedelta.relativedelta(months = i)
-# 		months.append(m.strftime("%Y/%m"))
-# 		i += 1
-# 	return months
 
 #make API request
 def createRequest(url):
@@ -35,39 +22,48 @@ def createRequest(url):
 		response = request.text
 		return response
 
+#get all archives available for the user (one per month)
 def getArchives(user):
 	url = chess_api_url + user + '/games/archives'
 	archives_response = createRequest(url)
 	archives_list = json.loads(archives_response)['archives']
 	return archives_list
 
+#main function to be called by the route
 def getData(user, max_games, time_class_list):
+	
+	#set all time_classes if no time class was selected by the user 
 	if len(time_class_list) == 0:
 		time_class_list.append('rapid')
 		time_class_list.append('blitz')
 		time_class_list.append('bullet')
+	
 	archives = getArchives(user)
 	archives = archives[::-1] #Reverse list
 	game_list = []
 	games_count = 0
 	error_count = 0	
 	for a in archives:
+		#stop requesting archives if the requested number of games has been reached
 		if games_count == max_games:
 			break
 		response_data = createRequest(a)
 		if response_data != "error":
-			games_data = json.loads(response_data)
+			games_data = json.loads(response_data) #load archive into a dict
 			for game in games_data['games']:
+				#stop loop if number of games is reached
 				if games_count == max_games:
 					break
 				try:
 					if game['time_class'] in time_class_list and game['rated'] and game['rules'] == 'chess':			
+						#get opening name
 						pgn = game['pgn']
 						start_string = 'ECOUrl "https://www.chess.com/openings/'
 						start = pgn.find(start_string) + len(start_string)
 						end = pgn.find('UTCDate') - 4
 						opening = pgn[start:end]
 						opening = opening.replace('-',' ')
+						
 						game_dict = {
 							'id': game['uuid'],
 							'end_time': game['end_time'],
@@ -84,16 +80,13 @@ def getData(user, max_games, time_class_list):
 						}
 						game_list.append(game_dict)
 						games_count += 1
-						print(games_count)
 					else:
 						continue
 				except:
 					error_count += 1
 					print(error_count)
 					continue
-	# with open("response.txt", "w") as text_file:
-	# 	for r in archive:
-	# 		print(r, file = text_file)
+
 	qty_div, qly_div, corr_div, white_op_div, black_op_div, insights = createDf(user, game_list)
 	return qty_div, qly_div, corr_div, white_op_div, black_op_div, games_count, insights
 
@@ -103,23 +96,23 @@ def createDf(user, archive):
 	archive_df['day_of_week'] = archive_df['end_time'].dt.day_name() 		  #get day of week
 	archive_df['hour'] = archive_df['end_time'].dt.hour  #get hour
 
-	#add morning 6 - 12 / afternoon 12 - 20 / night 20 - 5
+	#add time of day
 	conditions = [
 		(archive_df['hour'] > 5) & (archive_df['hour'] <= 12),
 		(archive_df['hour'] > 12) & (archive_df['hour'] <= 20),
 		(archive_df['hour'] > 20) | (archive_df['hour'] <= 5)
 	]
 	choices = ['morning', 'afternoon', 'night']
-
 	archive_df['time_of_day'] = np.select(conditions, choices, default="error")
 
-	archive_df['hour'] = archive_df['end_time'].dt.strftime('%H').add(':00')
+	archive_df['hour'] = archive_df['end_time'].dt.strftime('%H').add(':00') #set hour to HH:MM format
 
 	archive_df['user_color'] = np.where(archive_df['white_name'] == user, 'white', 'black') #set user color
+
+	#set user result
 	archive_df['user_result'] = np.where(archive_df['user_color'] == 'white', archive_df['white_result'], archive_df['black_result'])
+	
 	archive_df = archive_df.sort_values(by='end_time', ascending = False)
-	# archive_df.to_csv('chess_data.csv', encoding = 'utf-8', index = False)
-	# archive_df.to_csv('data.csv')
 	qty_div = quantityDf(archive_df)
 	qly_div = qualityDf(archive_df)
 	corr_div = correlationDf(archive_df)
@@ -129,6 +122,7 @@ def createDf(user, archive):
 	return qty_div, qly_div, corr_div, white_op_div, black_op_div, insights
 
 def quantityDf(df):
+	#generate heatmap with qty of games per day of week
 	df = df.groupby(['day_of_week', 'hour']).size().reset_index(name='n')
 	df['day_of_week'] = pd.Categorical(
 		df['day_of_week'],
@@ -138,7 +132,7 @@ def quantityDf(df):
 	df = df.sort_values('day_of_week')
 	heatmap_quantity = heatmap(df['hour'], df['day_of_week'], df['n'])
 	heatmap_quantity.update_layout(
-		title = 'Daily Chess Games',
+		title = 'Daily chess games',
 	    xaxis_title="Hour of Day",
 	    xaxis_showgrid = False,
 	    yaxis_showgrid = False,
@@ -153,6 +147,7 @@ def quantityDf(df):
 	return plotly.io.to_html(heatmap_quantity, include_plotlyjs=True, full_html=False, config={'displayModeBar': False})
 
 def qualityDf(df):
+	#generate heatmap with win rate per day of week
 	df = df.groupby(['day_of_week', 'hour'], as_index = False).agg({'user_result':[('n','count'),('wins', lambda x:len(x[x == 'win']))]})
 	df.columns = df.columns.droplevel()	
 	df.columns = ['day_of_week', 'hour', 'n_games', 'n_wins']
@@ -165,7 +160,7 @@ def qualityDf(df):
 	df = df.sort_values('day_of_week')
 	heatmap_quality = heatmap(df['hour'], df['day_of_week'], df['win_rate'])
 	heatmap_quality.update_layout(
-		title = 'Daily Chess Win Rate',
+		title = 'Daily chess win rate',
 	    xaxis_title="Hour of Day",
 	    xaxis_showgrid = False,
 	    yaxis_showgrid = False,
@@ -187,6 +182,7 @@ def heatmap(x, y, z):
 	return heatmap
 
 def correlationDf(df):
+	#generate plot with win rate and games played by date and time control 
 	df['date'] = df['end_time'].dt.date
 	df = df.groupby(['date', 'time_class'], as_index = False).agg({'user_result':[('n','count'),('wins', lambda x:len(x[x == 'win']))]})
 	df.columns = df.columns.droplevel()	
@@ -213,6 +209,7 @@ def correlationDf(df):
 	return corr_div
 
 def whiteOpeningsDf(df):
+	#generate bar plot with top 10 openings played as white
 	color_filter = df['user_color'] == 'white'
 	df = df[color_filter]
 	df['opening'] = df['opening'].apply(lambda x: ' '.join(x.split()[:2]))
@@ -251,6 +248,7 @@ def whiteOpeningsDf(df):
 	return div
 
 def blackOpeningsDf(df):
+	#generate bar plot with top 10 openings played as black
 	color_filter = df['user_color'] == 'black'
 	df = df[color_filter]
 	df['opening'] = df['opening'].apply(lambda x: ' '.join(x.split()[:2]))
