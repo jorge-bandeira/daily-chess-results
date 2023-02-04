@@ -206,21 +206,75 @@ def correlationDf(df):
 	#convert date to timestamps so the linear regression can be applied
 	df['timestamp'] = pd.to_datetime(df['date']).astype(np.int64) / 10**9
 	
+	#separate df per time class for linear regression data	
+	bulletDf = df[df['time_class'] == 'bullet']
+	blitzDf = df[df['time_class'] == 'blitz']
+	rapidDf = df[df['time_class'] == 'rapid']
+
 	#Linear regression model for win rate trendline
-	x = df['timestamp'].values.reshape(-1,1)
-	y = df['win_rate']
-	model = LinearRegression().fit(x,y)
+	bulletCheck = bulletDf.shape[0]
+	model_bullet = None
+	if bulletCheck > 0:
+		x_bullet = bulletDf['timestamp'].values.reshape(-1,1)
+		y_bullet = bulletDf['win_rate']
+		model_bullet = LinearRegression().fit(x_bullet,y_bullet)
+
+	blitzCheck = blitzDf.shape[0]
+	model_blitz = None
+	if blitzCheck > 0:
+		x_blitz = blitzDf['timestamp'].values.reshape(-1,1)
+		y_blitz = blitzDf['win_rate']
+		model_blitz = LinearRegression().fit(x_blitz,y_blitz)
+
+	rapidCheck = rapidDf.shape[0]
+	model_rapid = None
+	if rapidCheck > 0:
+		x_rapid = rapidDf['timestamp'].values.reshape(-1,1)
+		y_rapid = rapidDf['win_rate']
+		model_rapid = LinearRegression().fit(x_rapid,y_rapid)
 
 	corrFig = px.scatter(df, x='date', y='win_rate', color='time_class', size='n_games', color_continuous_scale=px.colors.sequential.Viridis)
-	corrFig.add_shape(
-		type = 'line',
-		x0=df['date'].min(),
-    	x1=df['date'].max(),
-    	y0=model.intercept_ + model.coef_[0] * df['timestamp'].min(),
-    	y1=model.intercept_ + model.coef_[0] * df['timestamp'].max(),
-    	yref='y',
-    	line=dict(color = '#00CC96')
-		)
+	
+	if model_bullet != None:
+		corrFig.add_shape(
+			type = 'line',
+			x0=bulletDf['date'].min(),
+	    	x1=bulletDf['date'].max(),
+	    	y0=model_bullet.intercept_ + model_bullet.coef_[0] * bulletDf['timestamp'].min(),
+	    	y1=model_bullet.intercept_ + model_bullet.coef_[0] * bulletDf['timestamp'].max(),
+	    	yref='y',
+	    	line=dict(
+	    		color = '#00CC96',
+	    		dash = 'dash'
+	    		)
+			)
+
+	if model_blitz != None:
+		corrFig.add_shape(
+			type = 'line',
+			x0=blitzDf['date'].min(),
+	    	x1=blitzDf['date'].max(),
+	    	y0=model_blitz.intercept_ + model_blitz.coef_[0] * blitzDf['timestamp'].min(),
+	    	y1=model_blitz.intercept_ + model_blitz.coef_[0] * blitzDf['timestamp'].max(),
+	    	yref='y',
+	    	line=dict(
+	    		color = '#4E57BA',
+	    		dash = 'dash'
+	    		)
+			)
+	if model_rapid != None:
+		corrFig.add_shape(
+			type = 'line',
+			x0=rapidDf['date'].min(),
+	    	x1=rapidDf['date'].max(),
+	    	y0=model_rapid.intercept_ + model_rapid.coef_[0] * rapidDf['timestamp'].min(),
+	    	y1=model_rapid.intercept_ + model_rapid.coef_[0] * rapidDf['timestamp'].max(),
+	    	yref='y',
+	    	line=dict(
+	    		color = '#B04535',
+	    		dash = 'dash'
+	    		)
+			)
 	corrFig.update_layout(
 		title = 'Win rate and games played by date and time control',
 		xaxis_title = 'Date',
@@ -236,7 +290,7 @@ def correlationDf(df):
 	    xaxis_fixedrange = True,
 	    yaxis_fixedrange = True
 		)
-	corrFig.update_coloraxes(showscale=False)
+	corrFig.update_coloraxes(showscale=True)
 	corr_div = plotly.io.to_html(corrFig, include_plotlyjs=True, full_html=False, config={'displayModeBar': False})
 	return corr_div
 
