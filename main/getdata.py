@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
+from sklearn.linear_model import LinearRegression
 
 #request structure
 chess_api_url = "https://api.chess.com/pub/player/"
@@ -201,7 +202,25 @@ def correlationDf(df):
 	df.columns = df.columns.droplevel()	
 	df.columns = ['date', 'time_class', 'n_games', 'n_wins']
 	df['win_rate'] = round(df['n_wins'] / df['n_games'],2)
+	
+	#convert date to timestamps so the linear regression can be applied
+	df['timestamp'] = pd.to_datetime(df['date']).astype(np.int64) / 10**9
+	
+	#Linear regression model for win rate trendline
+	x = df['timestamp'].values.reshape(-1,1)
+	y = df['win_rate']
+	model = LinearRegression().fit(x,y)
+
 	corrFig = px.scatter(df, x='date', y='win_rate', color='time_class', size='n_games', color_continuous_scale=px.colors.sequential.Viridis)
+	corrFig.add_shape(
+		type = 'line',
+		x0=df['date'].min(),
+    	x1=df['date'].max(),
+    	y0=model.intercept_ + model.coef_[0] * df['timestamp'].min(),
+    	y1=model.intercept_ + model.coef_[0] * df['timestamp'].max(),
+    	yref='y',
+    	line=dict(color = '#00CC96')
+		)
 	corrFig.update_layout(
 		title = 'Win rate and games played by date and time control',
 		xaxis_title = 'Date',
