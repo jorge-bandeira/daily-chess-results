@@ -233,7 +233,11 @@ def correlationDf(df):
 		y_rapid = rapidDf['win_rate']
 		model_rapid = LinearRegression().fit(x_rapid,y_rapid)
 
-	corrFig = px.scatter(df, x='date', y='win_rate', color='time_class', size='n_games', color_continuous_scale=px.colors.sequential.Viridis)
+	corrFig = px.scatter(df, x='date', 
+		y='win_rate', 
+		color='time_class', 
+		size='n_games', 
+		color_discrete_map={'bullet':'#00CC96', 'blitz':'#4E57BA', 'rapid':'#B04535'})
 	
 	if model_bullet != None:
 		corrFig.add_shape(
