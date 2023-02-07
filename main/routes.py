@@ -28,11 +28,10 @@ def report():
 		if form.bullet.data:
 			time_class_list.append('bullet')
 		data_response = getdata.getData(user, max_games, time_class_list)
-		match data_response:
-			case 404:
-				abort(404)
-			case 500:
-				abort(500)
+		if data_response == 404:
+			abort(404)
+		elif data_response == 500:
+			abort(500)
 		count = data_response['count']
 		if count == 0:
 			return render_template('nogames.html')
