@@ -28,8 +28,11 @@ def report():
 		if form.bullet.data:
 			time_class_list.append('bullet')
 		data_response = getdata.getData(user, max_games, time_class_list)
-		if data_response == 404:
-			abort(404)
+		match data_response:
+			case 404:
+				abort(404)
+			case 500:
+				abort(500)
 		count = data_response['count']
 		if count == 0:
 			return render_template('nogames.html')
@@ -46,4 +49,8 @@ def report():
 
 @app.errorhandler(404)
 def page_not_found(error):
-	return render_template('error.html'), 404
+	return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def page_not_found(error):
+	return render_template('500.html'), 500

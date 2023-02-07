@@ -29,12 +29,13 @@ def getArchives(user):
 	archives_response = createRequest(url)
 	if archives_response == 404:
 		return 404
+	elif archives_response == 500:
+		return 500
 	archives_list = json.loads(archives_response)['archives']
 	return archives_list
 
 #main function to be called by the route
 def getData(user, max_games, time_class_list):
-	
 	#set all time_classes if no time class was selected by the user 
 	if len(time_class_list) == 0:
 		time_class_list.append('rapid')
@@ -135,8 +136,8 @@ def createDf(user, archive):
 	insights = getInsights(archive_df)
 	return qty_div, qly_div, corr_div, white_op_div, black_op_div, insights
 
+#generate heatmap with qty of games per day of week
 def quantityDf(df):
-	#generate heatmap with qty of games per day of week
 	df = df.groupby(['day_of_week', 'hour']).size().reset_index(name='n')
 	df['day_of_week'] = pd.Categorical(
 		df['day_of_week'],
@@ -160,8 +161,8 @@ def quantityDf(df):
 		)
 	return plotly.io.to_html(heatmap_quantity, include_plotlyjs=True, full_html=False, config={'displayModeBar': False})
 
+#generate heatmap with win rate per day of week
 def qualityDf(df):
-	#generate heatmap with win rate per day of week
 	df = df.groupby(['day_of_week', 'hour'], as_index = False).agg({'user_result':[('n','count'),('wins', lambda x:len(x[x == 'win']))]})
 	df.columns = df.columns.droplevel()	
 	df.columns = ['day_of_week', 'hour', 'n_games', 'n_wins']
@@ -195,8 +196,8 @@ def heatmap(x, y, z):
 	heatmap.update_xaxes(categoryarray = x_order)
 	return heatmap
 
-def correlationDf(df):
-	#generate plot with win rate and games played by date and time control 
+#generate plot with win rate and games played by date and time control
+def correlationDf(df): 
 	df['date'] = df['end_time'].dt.date
 	df = df.groupby(['date', 'time_class'], as_index = False).agg({'user_result':[('n','count'),('wins', lambda x:len(x[x == 'win']))]})
 	df.columns = df.columns.droplevel()	
@@ -298,8 +299,8 @@ def correlationDf(df):
 	corr_div = plotly.io.to_html(corrFig, include_plotlyjs=True, full_html=False, config={'displayModeBar': False})
 	return corr_div
 
+#generate bar plot with top 10 openings played as white
 def whiteOpeningsDf(df):
-	#generate bar plot with top 10 openings played as white
 	color_filter = df['user_color'] == 'white'
 	df = df[color_filter]
 	df['opening'] = df['opening'].apply(lambda x: ' '.join(x.split()[:2]))
@@ -335,8 +336,8 @@ def whiteOpeningsDf(df):
 	div = plotly.io.to_html(fig, include_plotlyjs=True, full_html=False, config={'displayModeBar': False})
 	return div
 
+#generate bar plot with top 10 openings played as black
 def blackOpeningsDf(df):
-	#generate bar plot with top 10 openings played as black
 	color_filter = df['user_color'] == 'black'
 	df = df[color_filter]
 	df['opening'] = df['opening'].apply(lambda x: ' '.join(x.split()[:2]))
@@ -392,7 +393,6 @@ def getInsights(df):
 			'week_performance':week_performance,
 			'weekend_performance':weekend_performance
 	}
-
 	return insights
 
 def getMaxGames(df):
